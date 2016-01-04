@@ -1,7 +1,7 @@
 import copy
 
-from omniORB import StructBase
 from nose.tools import assert_equal, assert_is_not_none, assert_raises
+from omniORB import StructBase
 
 from pyfco import corbarecoder as recoder
 
