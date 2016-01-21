@@ -1,4 +1,4 @@
-from distutils.core import setup
+from freddist.core import setup
 
 setup(name='pyfco',
       version='1.0.0',
