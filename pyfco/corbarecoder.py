@@ -2,6 +2,8 @@ import codecs
 import copy
 import types
 
+from omniORB import EnumItem, StructBase
+
 
 class UnsupportedEncodingError(Exception):
     pass
@@ -31,8 +33,9 @@ class CorbaRecoder(object):
         self.add_recode_function(types.NoneType, self._identity, self._identity)
         self.add_recode_function(types.TupleType, self._decode_iter, self._encode_iter)
         self.add_recode_function(types.ListType, self._decode_iter, self._encode_iter)
-        self.add_recode_function(types.MethodType, self._identity, self._identity)
-        self.add_recode_function(types.InstanceType, self._decode_instance, self._encode_instance)
+        self.add_recode_function(StructBase, self._decode_struct, self._encode_struct)
+        # Do not decode/encode enum items
+        self.add_recode_function(EnumItem, self._identity, self._identity)
 
     def add_recode_function(self, typeobj, decode_function, encode_function):
         self.decode_functions[typeobj] = decode_function
@@ -61,8 +64,11 @@ class CorbaRecoder(object):
         """
         return type(val)([self.encode(x) for x in val])
 
-    def _decode_instance(self, val):
-        """ Iter over instance attributes and recursively decodes
+    def _decode_struct(self, val):
+        """
+        Returns decoded Corba structure.
+
+        Decodes all attributes.
         """
         answer = copy.copy(val)
         for name in dir(answer):
@@ -73,8 +79,11 @@ class CorbaRecoder(object):
                 answer.__dict__[name] = self.decode(item)
         return answer
 
-    def _encode_instance(self, val):
-        """ Iter over instance attributes and recursively encodes
+    def _encode_struct(self, val):
+        """
+        Returns encoded Corba structure.
+
+        Encodes all attributes.
         """
         answer = copy.copy(val)
         for name in dir(answer):
@@ -97,19 +106,23 @@ class CorbaRecoder(object):
         """
         raise ValueError("%s can not be encoded." % val)
 
+    def _get_parents(self, val):
+        """Returns all parents of the instance."""
+        return (val.__class__, ) + val.__class__.__bases__
+
     def decode(self, answer):
-        """ Decodes answer from Corba to Python
-        """
-        if type(answer) in self.decode_functions:
-            return self.decode_functions[type(answer)](answer)
+        """Returns answer decoded from Corba to Python."""
+        for cls in self._get_parents(answer):
+            if cls in self.decode_functions:
+                return self.decode_functions[cls](answer)
         else:
             return self._decode_other(answer)  # other unsupported type
 
     def encode(self, answer):
-        """ Decodes answer from Python to Corba
-        """
-        if type(answer) in self.encode_functions:
-            return self.encode_functions[type(answer)](answer)
+        """Returns answer encoded from Python to Corba."""
+        for cls in self._get_parents(answer):
+            if cls in self.encode_functions:
+                return self.encode_functions[cls](answer)
         else:
             return self._encode_other(answer)  # other unsupported type
 

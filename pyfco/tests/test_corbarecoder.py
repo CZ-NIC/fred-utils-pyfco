@@ -1,9 +1,11 @@
 import copy
 import unittest
 
-from omniORB import StructBase
+from omniORB import EnumItem, StructBase
 
 from pyfco import corbarecoder as recoder
+
+TEST_ENUM_ITEM = EnumItem("MyEnumItem", 42)
 
 
 class SampleCorbaStruct(StructBase):
@@ -37,6 +39,15 @@ class SampleCorbaStruct(StructBase):
         self.access = access
         self.zones = zones
         self.hidden = hidden
+
+
+class NodeStruct(StructBase):
+    """
+    Simple corba structure for testing nested structures.
+    """
+    def __init__(self, text, inner):
+        self.text = text
+        self.inner = inner
 
 
 class TestCorbaRecoder(unittest.TestCase):
@@ -260,6 +271,14 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(encoded_list[2][0], expected_list[2][0])
         self.assertEqual(type(encoded_list[2][0]), type(expected_list[2][0]))
 
+    def test_decode_enum_item(self):
+        recoder = self.recoder_class("utf-8")
+        self.assertEqual(recoder.decode(TEST_ENUM_ITEM), TEST_ENUM_ITEM)
+
+    def test_encode_enum_item(self):
+        recoder = self.recoder_class("utf-8")
+        self.assertEqual(recoder.encode(TEST_ENUM_ITEM), TEST_ENUM_ITEM)
+
     def test_decode_struct(self):
         """ CorbaRecoder decodes corba entity to python correctly . """
         rec = self.recoder_class("utf-8")
@@ -318,6 +337,62 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(type(encoded_entity.__dict__['vat']), type(expected.__dict__['vat']))
         self.assertEqual(type(encoded_entity.__dict__['access']), type(expected.__dict__['access']))
 
+    def test_decode_nested_struct(self):
+        rec = self.recoder_class("utf-8")
+        obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
+
+        output = rec.decode(obj)
+
+        # Check output
+        self.assertEqual(output.text, 'A')
+        self.assertIsInstance(output.text, unicode)
+        self.assertIsInstance(output.inner, NodeStruct)
+        self.assertEqual(output.inner.text, 'B')
+        self.assertIsInstance(output.inner.text, unicode)
+        self.assertIsInstance(output.inner.inner, NodeStruct)
+        self.assertEqual(output.inner.inner.text, 'C')
+        self.assertIsInstance(output.inner.inner.text, unicode)
+        self.assertIsNone(output.inner.inner.inner)
+
+        # Check original object
+        self.assertEqual(obj.text, 'A')
+        self.assertIsInstance(obj.text, str)
+        self.assertIsInstance(obj.inner, NodeStruct)
+        self.assertEqual(obj.inner.text, 'B')
+        self.assertIsInstance(obj.inner.text, str)
+        self.assertIsInstance(obj.inner.inner, NodeStruct)
+        self.assertEqual(obj.inner.inner.text, 'C')
+        self.assertIsInstance(obj.inner.inner.text, str)
+        self.assertIsNone(obj.inner.inner.inner)
+
+    def test_encode_nested_struct(self):
+        rec = self.recoder_class("utf-8")
+        obj = NodeStruct(u'A', NodeStruct(u'B', NodeStruct(u'C', None)))
+
+        output = rec.encode(obj)
+
+        # Check output
+        self.assertEqual(output.text, 'A')
+        self.assertIsInstance(output.text, str)
+        self.assertIsInstance(output.inner, NodeStruct)
+        self.assertEqual(output.inner.text, 'B')
+        self.assertIsInstance(output.inner.text, str)
+        self.assertIsInstance(output.inner.inner, NodeStruct)
+        self.assertEqual(output.inner.inner.text, 'C')
+        self.assertIsInstance(output.inner.inner.text, str)
+        self.assertIsNone(output.inner.inner.inner)
+
+        # Check original object
+        self.assertEqual(obj.text, 'A')
+        self.assertIsInstance(obj.text, unicode)
+        self.assertIsInstance(obj.inner, NodeStruct)
+        self.assertEqual(obj.inner.text, 'B')
+        self.assertIsInstance(obj.inner.text, unicode)
+        self.assertIsInstance(obj.inner.inner, NodeStruct)
+        self.assertEqual(obj.inner.inner.text, 'C')
+        self.assertIsInstance(obj.inner.inner.text, unicode)
+        self.assertIsNone(obj.inner.inner.inner)
+
     def test_decode_other(self):
         """ Decoding object raise error """
         rec = self.recoder_class("utf-8")
@@ -329,73 +404,6 @@ class TestCorbaRecoder(unittest.TestCase):
         rec = self.recoder_class("utf-8")
         reg = object()
         self.assertRaises(ValueError, rec.encode, reg)
-
-    class Foo():
-        """ Fake class for encoding testing. """
-        def __init__(self, a, b, c):
-            self.a, self.b, self.c = a, b, c
-
-        def __str__(self):
-
-            return "Foo(%s, %s, %s)" % (self.a, self.b, self.c)
-
-        def __repr__(self):
-            return self.__str__()
-
-        def __eq__(self, obj):
-            """ Equality is defined so that we can assert it easier"""
-            return (self.a == obj.a and
-                    self.b == obj.b and
-                    self.c == obj.c)
-
-    class Bar(Foo):
-        """ Fake class for encoding testing. """
-        def __str__(self):
-            return "Bar(%s, %s, %s)" % (self.a, self.b, self.c)
-
-    def test_encode_double_nested_oldstyle_class_attrs(self):
-        """ Nested class attrs gets encoded OK.
-            Note: We're using old-style classes, because that's what omniORBpy
-            does. """
-        rec = self.recoder_class("utf-8")
-        p_ent = TestCorbaRecoder.Foo(
-            1, TestCorbaRecoder.Bar(
-                2, TestCorbaRecoder.Bar(3, None, u"5"),
-                6.0),
-            0)
-        expected = TestCorbaRecoder.Foo(
-            1, TestCorbaRecoder.Bar(
-                2, TestCorbaRecoder.Bar(3, None, "5"),
-                6.0),
-            0)
-        res = rec.encode(p_ent)
-
-        self.assertEqual(expected, res)
-        self.assertEqual(type(res.b.b.b), type(expected.b.b.b))
-        self.assertEqual(type(res.b.b.c), type(expected.b.b.c))
-        self.assertEqual(type(res.b.c), type(expected.b.c))
-
-    def test_decode_double_nested_oldstyle_class_types(self):
-        """ Nested class types gets encoded OK.
-            Note: We're using old-style classes, because that's what omniORBpy
-            does. """
-        rec = self.recoder_class("utf-8")
-        p_ent = TestCorbaRecoder.Foo(
-            1, TestCorbaRecoder.Bar(
-                2, TestCorbaRecoder.Bar(3, None, "5"),
-                6.0),
-            0)
-        expected = TestCorbaRecoder.Foo(
-            1, TestCorbaRecoder.Bar(
-                2, TestCorbaRecoder.Bar(3, None, u"5"),
-                6.0),
-            0)
-        res = rec.decode(p_ent)
-
-        self.assertEqual(expected, res)
-        self.assertEqual(type(res.b.b.b), type(expected.b.b.b))
-        self.assertEqual(type(res.b.b.c), type(expected.b.b.c))
-        self.assertEqual(type(res.b.c), type(expected.b.c))
 
     def test_sanity_dec_enc(self):
         """ encode(decode(obj)) is equal to obj. """
