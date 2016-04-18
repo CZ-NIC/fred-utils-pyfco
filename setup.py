@@ -1,3 +1,5 @@
+# Setup MUST be from freddist.
+# It does not work with fred-manager if it is from distutils.core.
 from freddist.core import setup
 
 setup(name='pyfco',
