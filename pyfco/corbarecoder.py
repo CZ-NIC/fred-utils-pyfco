@@ -13,9 +13,6 @@ class CorbaRecoder(object):
         specified encoding).
     """
 
-    encode_functions = {}
-    decode_functions = {}
-
     def __init__(self, coding='ascii'):
         try:
             codecs.lookup(coding)
@@ -23,6 +20,8 @@ class CorbaRecoder(object):
         except LookupError, e:
             raise UnsupportedEncodingError(e)
 
+        self.encode_functions = {}
+        self.decode_functions = {}
         self.add_recode_function(str, self._decode_str, self._identity)
         self.add_recode_function(unicode, self._identity, self._encode_unicode)
         self.add_recode_function(bool, self._identity, self._identity)
