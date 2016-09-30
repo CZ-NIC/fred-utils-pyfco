@@ -8,3 +8,14 @@ isort:
 flake8:
     image: cznic/ubuntu_python_runner:latest
     script: "make check-flake8"
+
+test:
+    image: cznic/ubuntu_python_runner:latest
+    script:
+        # install omniORB and omniIDL
+        - apt-get update && apt-get install -y python-omniorb omniidl-python
+        # freddist are required to install our dependencies
+        - pip install -e git+git@gitlab.office.nic.cz:utils/freddist.git#egg=freddist
+        - pip install --find-links=/usr/share/python-wheels -r requirements-dev.txt
+        - pip list
+        - make test
