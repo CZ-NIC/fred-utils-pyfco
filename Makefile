@@ -7,6 +7,8 @@ default: check-all
 test:
 	python -m unittest discover
 
+test-coverage:
+	coverage run --source=pyfco --branch -m unittest discover
 isort:
 	isort --recursive ${APP}
 

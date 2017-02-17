@@ -1,6 +1,7 @@
 stages:
     - analysis
     - test
+    - coverage
 
 isort:
     image: cznic/ubuntu_python_runner:latest
@@ -22,10 +23,26 @@ test:
     image: cznic/ubuntu_python_runner:latest
     stage: test
     script:
+        # Install coverage
+        - pip install coverage
+        - mkdir coverage
         # install omniORB and omniIDL
         - apt-get update && apt-get install -y python-omniorb omniidl-python
         # freddist are required to install our dependencies
         - pip install -e git+git@gitlab.office.nic.cz:utils/freddist.git#egg=freddist
         - pip install --find-links=/usr/share/python-wheels -r requirements-dev.txt
         - pip list
-        - make test
+        - COVERAGE_FILE="coverage/.coverage.$CI_BUILD_ID" make test-coverage
+    artifacts:
+        expire_in: 1d
+        paths:
+        - coverage/
+
+coverage-report:
+    image: cznic/ubuntu_python_runner:latest
+    stage: coverage
+    script:
+        - pip install coverage
+        - coverage combine coverage/
+        - coverage report --include=*/tests/* --fail-under=100
+        - coverage report
