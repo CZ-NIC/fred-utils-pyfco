@@ -32,11 +32,13 @@ test:
         - pip install -e git+git@gitlab.office.nic.cz:utils/freddist.git#egg=freddist
         - pip install --find-links=/usr/share/python-wheels -r requirements-dev.txt
         - pip list
-        - COVERAGE_FILE="coverage/.coverage.$CI_BUILD_ID" make test-coverage
+        - make test-coverage
     artifacts:
         expire_in: 1d
         paths:
         - coverage/
+    variables:
+        COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
 
 coverage-report:
     image: cznic/ubuntu_python_runner:latest
