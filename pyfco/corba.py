@@ -1,7 +1,6 @@
 import CosNaming
 import omniORB
 
-
 # System Exception Handlers
 # The call-back function must have the signature:
 #
