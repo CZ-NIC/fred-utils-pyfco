@@ -10,9 +10,9 @@ class UnsupportedEncodingError(Exception):
 
 
 class CorbaRecoder(object):
-    """ Encodes and decodes corba entities to python entities, i.e.,
-        essentially converts corba strings to python strings (type depends on
-        specified encoding).
+    """Encode and decode corba entities to python entities.
+
+    Essentially converts corba strings to python strings (type depends on specified encoding).
     """
 
     def __init__(self, coding='ascii'):
@@ -45,28 +45,24 @@ class CorbaRecoder(object):
         return val
 
     def _decode_str(self, val):
-        """ Decodes str to unicode
-        """
+        """Decode str to unicode."""
         return val.decode(self.coding)
 
     def _encode_unicode(self, val):
-        """ Encodes unicode to str
-        """
+        """Encode unicode to str."""
         return val.encode(self.coding)
 
     def _decode_iter(self, val):
-        """ Iter over iterable and recursively decodes
-        """
+        """Iterate over iterable and recursively decode."""
         return type(val)([self.decode(x) for x in val])
 
     def _encode_iter(self, val):
-        """ Iter over iterable and recursively encodes
-        """
+        """Iterate over iterable and recursively encode."""
         return type(val)([self.encode(x) for x in val])
 
     def _decode_struct(self, val):
         """
-        Returns decoded Corba structure.
+        Return decoded Corba structure.
 
         Decodes all attributes.
         """
@@ -81,7 +77,7 @@ class CorbaRecoder(object):
 
     def _encode_struct(self, val):
         """
-        Returns encoded Corba structure.
+        Return encoded Corba structure.
 
         Encodes all attributes.
         """
@@ -95,23 +91,19 @@ class CorbaRecoder(object):
         return answer
 
     def _decode_other(self, val):
-        """ Raise error on other types
-            Can be overridden to decode it
-        """
+        """Raise error on other types. Can be overridden to decode it."""
         raise ValueError("%s can not be decoded." % val)
 
     def _encode_other(self, val):
-        """ Raise error on other types
-            Can be overridden to encode it
-        """
+        """Raise error on other types. Can be overridden to encode it."""
         raise ValueError("%s can not be encoded." % val)
 
     def _get_parents(self, val):
-        """Returns all parents of the instance."""
+        """Return all parents of the instance."""
         return (val.__class__, ) + val.__class__.__bases__
 
     def decode(self, answer):
-        """Returns answer decoded from Corba to Python."""
+        """Return answer decoded from Corba to Python."""
         for cls in self._get_parents(answer):
             if cls in self.decode_functions:
                 return self.decode_functions[cls](answer)
@@ -119,7 +111,7 @@ class CorbaRecoder(object):
             return self._decode_other(answer)  # other unsupported type
 
     def encode(self, answer):
-        """Returns answer encoded from Python to Corba."""
+        """Return answer encoded from Python to Corba."""
         for cls in self._get_parents(answer):
             if cls in self.encode_functions:
                 return self.encode_functions[cls](answer)

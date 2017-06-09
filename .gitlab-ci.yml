@@ -19,6 +19,15 @@ flake8:
         - pip list
     script: "make check-flake8"
 
+pydocstyle:
+    tags:
+        - python2
+    stage: analysis
+    before_script:
+        - pip install pydocstyle
+        - pip list
+    script: "make check-doc"
+
 test:
     image: cznic/ubuntu_python_runner:latest
     stage: test

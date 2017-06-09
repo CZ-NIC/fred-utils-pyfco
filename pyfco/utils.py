@@ -1,6 +1,4 @@
-"""
-Utilities
-"""
+"""Utilities."""
 import inspect
 import types
 from unittest.util import safe_repr
@@ -9,9 +7,8 @@ import omniORB
 
 
 class CorbaAssertMixin(object):
-    """
-    Mixin for `TestCase` which provides methods to compare corba objects.
-    """
+    """Mixin for `TestCase` which provides methods to compare corba objects."""
+
     corba_equality_funcs = {}
 
     def __init__(self, *args, **kwargs):
@@ -19,9 +16,7 @@ class CorbaAssertMixin(object):
         self.addTypeEqualityFunc(types.InstanceType, 'assertInstanceEqual')
 
     def assertInstanceEqual(self, first, second, msg=None):
-        """
-        Compares objects of the instance (old-style) classes.
-        """
+        """Compare objects of the instance (old-style) classes."""
         if isinstance(first, omniORB.StructBase) and isinstance(second, omniORB.StructBase):
             assertion_func = self._get_corba_equality_func(first)
             assertion_func(first, second, msg=msg)
@@ -37,9 +32,7 @@ class CorbaAssertMixin(object):
         return self._base_struct_equal
 
     def _base_struct_equal(self, first, second, msg=None):
-        """
-        Simple comparison of corba structures.
-        """
+        """Compare corba structures."""
         self.assertIsInstance(first, omniORB.StructBase, "First argument is not a corba structure")
         self.assertIsInstance(second, omniORB.StructBase, "Second argument is not a corba structure")
 
@@ -58,9 +51,7 @@ class CorbaAssertMixin(object):
             self.assertEqual(getattr(first, arg), getattr(second, arg), msg)
 
     def assertCorbaCallsEqual(self, real_calls, expected_calls, msg=None):
-        """
-        Compares two lists of calls comparing corba objects.
-        """
+        """Compare two lists of calls comparing corba objects."""
         standard_msg = "%s != %s" % (safe_repr(real_calls), safe_repr(expected_calls))
         msg = self._formatMessage(msg, standard_msg)
         self.assertEqual(len(real_calls), len(expected_calls), msg)

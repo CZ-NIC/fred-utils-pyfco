@@ -1,6 +1,4 @@
-"""
-Corba client.
-"""
+"""Corba client."""
 import logging
 import random
 import string
@@ -11,9 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def sane_repr(obj, max_length):
-    """
-    Utility method which returns object representation limited to `max_length` characters.
-    """
+    """Return object representation limited to `max_length` characters."""
     obj_repr = repr(obj)
     if len(obj_repr) > max_length:
         return obj_repr[:max_length] + ' [truncated]...'
@@ -30,10 +26,13 @@ class CorbaClient(object):
 
     @cvar max_length: Maximum length of `result` represantation in logs.
     """
+
     max_length = 2048
 
     def __init__(self, corba_object, recoder, server_error_cls=None):
         """
+        Initialize instance.
+
         @param corba_object: Corba object to be wrapped.
         @type corba_object: `omniORB.CORBA.Object`
         @param recoder: Corba recoder used to encode/decode data.
@@ -47,9 +46,7 @@ class CorbaClient(object):
 
     # This method doesn't have **kwargs because Corba doesn't support it, at least not in the current version.
     def _call(self, method, *args):
-        """
-        Utility method that actually performs the Corba call.
-        """
+        """Actually perform the Corba call."""
         # Generate identifier to mark matching logs
         call_id = ''.join(random.choice(ALLOWED_CHARS) for i in range(4))
         _LOGGER.debug("[%s] %s(%r)", call_id, method, args)
@@ -77,9 +74,7 @@ class CorbaClient(object):
         return self.recoder.decode(result)
 
     def __getattr__(self, name):
-        """
-        Publishes CORBA object methods.
-        """
+        """Publish CORBA object methods."""
         if hasattr(self.corba_object, name):
             def wrapper(*args):
                 return self._call(name, *args)
@@ -95,6 +90,7 @@ class CorbaClientProxy(object):
     @ivar client: Corba client instance
     @type client: `CorbaClient`
     """
+
     def __init__(self, client):
         self.client = client
 

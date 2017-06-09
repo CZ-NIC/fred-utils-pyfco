@@ -13,7 +13,7 @@ import omniORB
 
 
 def transient_failure(cookie, retries, exc):
-    '''
+    """
     Manage TRANSIENT exceptions.
 
     TRANSIENT exceptions can occur in many circumstances. One circumstance is as follows:
@@ -26,7 +26,7 @@ def transient_failure(cookie, retries, exc):
     * The attempt to contact the object fails.
     * The ORB runtime resets the location cache and throws a TRANSIENT exception with minor
       code TRANSIENT_FailedOnForwarded.
-    '''
+    """
     if retries > 10:
         return False  # Skip first 10 exceptions.
     else:
@@ -34,7 +34,7 @@ def transient_failure(cookie, retries, exc):
 
 
 def comm_failure(cookie, retries, exc):
-    "Postpone CORBA.COMM_FAILURE exception."
+    """Postpone CORBA.COMM_FAILURE exception."""
     if retries > 20:
         return False  # Skip first 20 exceptions.
     else:
@@ -42,7 +42,7 @@ def comm_failure(cookie, retries, exc):
 
 
 def system_failure(cookie, retries, exc):
-    "Postpone CORBA.COMM_FAILURE exception."
+    """Postpone CORBA.COMM_FAILURE exception."""
     if retries > 5:
         return False  # Skip first 5 exceptions.
     else:
@@ -50,14 +50,14 @@ def system_failure(cookie, retries, exc):
 
 
 def init_omniorb_exception_handles(cookie):
-    "Bound exception handles with omniORB API."
+    """Bound exception handles with omniORB API."""
     omniORB.installTransientExceptionHandler(cookie, transient_failure)
     omniORB.installCommFailureExceptionHandler(cookie, comm_failure)
     omniORB.installSystemExceptionHandler(cookie, system_failure)
 
 
 class CorbaNameServiceClient(object):
-    '''
+    """
     Corba name service client connects to the corba server.
 
     @ivar host_port: Host and port to the Corba service. E.g. 'hostname:port'.
@@ -68,7 +68,7 @@ class CorbaNameServiceClient(object):
     @type context: C{CosNaming._objref_NamingContext instance}
     @ivar orb: Module ORB.
     @type orb: C{omniORB.CORBA.ORB instance}
-    '''
+    """
 
     def __init__(self, orb, host_port='localhost', context_name='fred'):
         self.host_port = host_port
@@ -77,7 +77,7 @@ class CorbaNameServiceClient(object):
         self.orb = orb
 
     def connect(self):
-        "Connect to the corba server."
+        """Connect to the corba server."""
         obj = self.orb.string_to_object('corbaname::' + self.host_port)
         self.context = obj._narrow(CosNaming.NamingContext)
 
