@@ -1,59 +1,16 @@
+import logging
+import warnings
+
 import CosNaming
-import omniORB
+from omniORB import installTransientExceptionHandler
 
-# System Exception Handlers
-# The call-back function must have the signature:
-#
-# function(cookie, retries, exc) -> boolean
-#
-# When a TRANSIENT exception occurs, the function is called, passing the cookie object,
-# a count of how many times the operation has been retried, and the TRANSIENT exception
-# object itself. If the function returns true, the operation is retried; if it returns false,
-# the TRANSIENT exception is raised in the application.
-
-
-def transient_failure(cookie, retries, exc):
-    """
-    Manage TRANSIENT exceptions.
-
-    TRANSIENT exceptions can occur in many circumstances. One circumstance is as follows:
-
-    * The client invokes on an object reference.
-    * The object replies with a LOCATION_FORWARD message.
-    * The client caches the new location and retries to the new location.
-    * Time passes...
-    * The client tries to invoke on the object again, using the cached, forwarded location.
-    * The attempt to contact the object fails.
-    * The ORB runtime resets the location cache and throws a TRANSIENT exception with minor
-      code TRANSIENT_FailedOnForwarded.
-    """
-    if retries > 10:
-        return False  # Skip first 10 exceptions.
-    else:
-        return True
-
-
-def comm_failure(cookie, retries, exc):
-    """Postpone CORBA.COMM_FAILURE exception."""
-    if retries > 20:
-        return False  # Skip first 20 exceptions.
-    else:
-        return True
-
-
-def system_failure(cookie, retries, exc):
-    """Postpone CORBA.COMM_FAILURE exception."""
-    if retries > 5:
-        return False  # Skip first 5 exceptions.
-    else:
-        return True
+_LOGGER = logging.getLogger(__name__)
 
 
 def init_omniorb_exception_handles(cookie):
     """Bound exception handles with omniORB API."""
-    omniORB.installTransientExceptionHandler(cookie, transient_failure)
-    omniORB.installCommFailureExceptionHandler(cookie, comm_failure)
-    omniORB.installSystemExceptionHandler(cookie, system_failure)
+    warnings.warn("'init_omniorb_exception_handles' is obsolete and does nothing. It should be removed.",
+                  DeprecationWarning)
 
 
 class CorbaNameServiceClient(object):
@@ -68,17 +25,29 @@ class CorbaNameServiceClient(object):
     @type context: C{CosNaming._objref_NamingContext instance}
     @ivar orb: Module ORB.
     @type orb: C{omniORB.CORBA.ORB instance}
+    @ivar retries: Maximal number of retries on error.
+    @type retries: int
     """
 
-    def __init__(self, orb, host_port='localhost', context_name='fred'):
+    def __init__(self, orb, host_port='localhost', context_name='fred', retries=5):
         self.host_port = host_port
         self.context_name = context_name
         self.context = None
         self.orb = orb
+        self.retries = retries
+
+    def retry_handler(self, cookie, retries, exc):
+        """Handle corba error and retry, unless number of retries is too high."""
+        _LOGGER.debug("Handling corba error %r - %r retries.", exc, retries)
+        if retries >= self.retries:
+            return False
+        else:
+            return True
 
     def connect(self):
-        """Connect to the corba server."""
+        """Connect to the corba server and attach TRANSIENT error handler."""
         obj = self.orb.string_to_object('corbaname::' + self.host_port)
+        installTransientExceptionHandler(None, self.retry_handler, obj)
         self.context = obj._narrow(CosNaming.NamingContext)
 
     def get_object(self, name, idl_object):
