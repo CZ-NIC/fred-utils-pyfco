@@ -1,10 +1,11 @@
+"""Test `pyfco.name_service` module."""
 import unittest
 
 import CosNaming
 from mock import Mock, call, patch, sentinel
 from testfixtures import ShouldWarn
 
-from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
+from pyfco.name_service import CorbaNameServiceClient, init_omniorb_exception_handles
 
 
 class TestInitOmniorbExceptionHandles(unittest.TestCase):
@@ -34,7 +35,7 @@ class TestCorbaNameServiceClient(unittest.TestCase):
         mock_obj._narrow.return_value = sentinel.context
         corba_obj = CorbaNameServiceClient(mock_orb)
 
-        with patch('pyfco.corba.installTransientExceptionHandler', autospec=True) as install_mock:
+        with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True) as install_mock:
             corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
@@ -46,7 +47,7 @@ class TestCorbaNameServiceClient(unittest.TestCase):
 
     def test_corba_get_object(self):
         mock_orb = Mock()
-        with patch('pyfco.corba.installTransientExceptionHandler', autospec=True):
+        with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True):
             with patch.object(CosNaming, "NameComponent") as mock_name_component:
                 corba_obj = CorbaNameServiceClient(mock_orb)
                 corba_obj.get_object("Logger", "ccRegTest.Logger")
@@ -64,7 +65,7 @@ class TestCorbaNameServiceClient(unittest.TestCase):
     def test_corba_context_is_not_none(self):
         mock_orb = Mock()
         mock_context = Mock()
-        with patch('pyfco.corba.installTransientExceptionHandler', autospec=True):
+        with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True):
             with patch.object(CosNaming, "NameComponent") as mock_name_component:
                 corba_obj = CorbaNameServiceClient(mock_orb)
                 corba_obj.context = mock_context

@@ -9,8 +9,8 @@ from logging.handlers import BufferingHandler
 from mock import Mock, call, patch, sentinel
 from omniORB import CORBA
 
+from pyfco import CorbaRecoder
 from pyfco.client import CorbaClient, CorbaClientProxy, sane_repr
-from pyfco.corbarecoder import CorbaRecoder
 
 
 class TestSaneRepr(unittest.TestCase):

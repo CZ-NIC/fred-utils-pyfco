@@ -3,7 +3,7 @@ import unittest
 
 from omniORB import EnumItem, StructBase
 
-from pyfco import corbarecoder as recoder
+from pyfco.recoder import CorbaRecoder, UnsupportedEncodingError
 
 TEST_ENUM_ITEM = EnumItem("MyEnumItem", 42)
 
@@ -52,7 +52,7 @@ class NodeStruct(StructBase):
 
 class TestCorbaRecoder(unittest.TestCase):
 
-    recoder_class = recoder.CorbaRecoder
+    recoder_class = CorbaRecoder
 
     def test_create(self):
         """ CorbaRecoder is created with supported encoding. """
@@ -61,7 +61,7 @@ class TestCorbaRecoder(unittest.TestCase):
 
     def test_create_wrong_encoding(self):
         """ CorbaRecoder raises error for unsupported encoding. """
-        self.assertRaises(recoder.UnsupportedEncodingError, self.recoder_class, "invalid coding")
+        self.assertRaises(UnsupportedEncodingError, self.recoder_class, "invalid coding")
 
     def test_decode_basic_types(self):
         """ CorbaRecoder decodes basic types to python correctly . """
