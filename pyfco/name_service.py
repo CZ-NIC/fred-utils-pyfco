@@ -2,7 +2,7 @@ import logging
 import warnings
 
 import CosNaming
-from omniORB import installTransientExceptionHandler
+from omniORB import CORBA, installTransientExceptionHandler
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,17 +23,21 @@ class CorbaNameServiceClient(object):
     @type context_name: C{str}
     @ivar context: Corba NamingContext instance.
     @type context: C{CosNaming._objref_NamingContext instance}
-    @ivar orb: Module ORB.
-    @type orb: C{omniORB.CORBA.ORB instance}
     @ivar retries: Maximal number of retries on error.
     @type retries: int
+
+    @cvar orb_args: Arguments for CORBA initialization.
+    @type orb_args: [str, str, ...]
     """
 
-    def __init__(self, orb, host_port='localhost', context_name='fred', retries=5):
+    orb_args = ['-ORBnativeCharCodeSet', 'UTF-8']
+
+    def __init__(self, orb=None, host_port='localhost', context_name='fred', retries=5):
+        if orb is not None:
+            warnings.warn("'orb' argument is deprecated and should be removed.", DeprecationWarning)
         self.host_port = host_port
         self.context_name = context_name
         self.context = None
-        self.orb = orb
         self.retries = retries
 
     def retry_handler(self, cookie, retries, exc):
@@ -46,7 +50,8 @@ class CorbaNameServiceClient(object):
 
     def connect(self):
         """Connect to the corba server and attach TRANSIENT error handler."""
-        obj = self.orb.string_to_object('corbaname::' + self.host_port)
+        orb = CORBA.ORB_init(self.orb_args)
+        obj = orb.string_to_object('corbaname::' + self.host_port)
         installTransientExceptionHandler(None, self.retry_handler, obj)
         self.context = obj._narrow(CosNaming.NamingContext)
 

@@ -29,46 +29,50 @@ class TestCorbaNameServiceClient(unittest.TestCase):
         self.assertFalse(client.retry_handler(sentinel.cookie, 3, sentinel.exc))
         self.assertFalse(client.retry_handler(sentinel.cookie, 17, sentinel.exc))
 
+    def test_corba_orb_deprecated(self):
+        with ShouldWarn(DeprecationWarning("'orb' argument is deprecated and should be removed.")):
+            CorbaNameServiceClient(orb=sentinel.orb)
+
     def test_corba_connect(self):
-        mock_orb = Mock()
-        mock_obj = mock_orb.string_to_object.return_value
-        mock_obj._narrow.return_value = sentinel.context
-        corba_obj = CorbaNameServiceClient(mock_orb)
+        corba_obj = CorbaNameServiceClient()
 
         with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True) as install_mock:
-            corba_obj.connect()
+            with patch('pyfco.name_service.CORBA.ORB_init', autospec=True) as init_mock:
+                init_mock.return_value.string_to_object.return_value._narrow.return_value = sentinel.context
+                corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
-        self.assertEqual(mock_orb.mock_calls, [
-            call.string_to_object('corbaname::localhost'),
-            call.string_to_object()._narrow(CosNaming.NamingContext),
-        ])
-        self.assertEqual(install_mock.mock_calls, [call(None, corba_obj.retry_handler, mock_obj)])
+        calls = [call(['-ORBnativeCharCodeSet', 'UTF-8']),
+                 call().string_to_object('corbaname::localhost'),
+                 call().string_to_object()._narrow(CosNaming.NamingContext)]
+        self.assertEqual(init_mock.mock_calls, calls)
+        self.assertEqual(install_mock.mock_calls,
+                         [call(None, corba_obj.retry_handler, init_mock.return_value.string_to_object.return_value)])
 
     def test_corba_get_object(self):
-        mock_orb = Mock()
+        corba_obj = CorbaNameServiceClient()
         with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True):
-            with patch.object(CosNaming, "NameComponent") as mock_name_component:
-                corba_obj = CorbaNameServiceClient(mock_orb)
-                corba_obj.get_object("Logger", "ccRegTest.Logger")
+            with patch('pyfco.name_service.CORBA.ORB_init', autospec=True) as init_mock:
+                with patch.object(CosNaming, "NameComponent") as mock_name_component:
+                    corba_obj.get_object("Logger", "ccRegTest.Logger")
         self.assertEqual(mock_name_component.mock_calls, [
             call('fred', 'context'),
             call('Logger', 'Object'),
         ])
-        self.assertEqual(mock_orb.mock_calls, [
-            call.string_to_object('corbaname::localhost'),
-            call.string_to_object()._narrow(CosNaming.NamingContext),
-            call.string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
-            call.string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')
-        ])
+        calls = [call(['-ORBnativeCharCodeSet', 'UTF-8']),
+                 call().string_to_object('corbaname::localhost'),
+                 call().string_to_object()._narrow(CosNaming.NamingContext),
+                 call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
+                 call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')]
+        self.assertEqual(init_mock.mock_calls, calls)
 
     def test_corba_context_is_not_none(self):
-        mock_orb = Mock()
         mock_context = Mock()
+        corba_obj = CorbaNameServiceClient()
+        corba_obj.context = mock_context
+
         with patch('pyfco.name_service.installTransientExceptionHandler', autospec=True):
             with patch.object(CosNaming, "NameComponent") as mock_name_component:
-                corba_obj = CorbaNameServiceClient(mock_orb)
-                corba_obj.context = mock_context
                 corba_obj.get_object("Logger", "ccRegTest.Logger")
         self.assertEqual(mock_context.mock_calls, [
             call.resolve([mock_name_component.return_value, mock_name_component.return_value]),
@@ -78,4 +82,3 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             call('fred', 'context'),
             call('Logger', 'Object')
         ])
-        self.assertEqual(mock_orb.mock_calls, [])
