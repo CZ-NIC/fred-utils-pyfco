@@ -37,8 +37,6 @@ test:
         - mkdir coverage
         # install omniORB and omniIDL
         - apt-get update && apt-get install -y python-omniorb omniidl-python
-        # freddist are required to install our dependencies
-        - pip install -e git+git@gitlab.office.nic.cz:utils/freddist.git#egg=fred-distutils
         - pip install -r requirements-dev.txt
         - pip list
         - make test-coverage

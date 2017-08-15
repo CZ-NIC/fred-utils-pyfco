@@ -1,9 +1,11 @@
-# Setup MUST be from freddist.
-# It does not work with fred-manager if it is from distutils.core.
-from freddist.core import setup
+# -*- coding: utf-8 -*-
+from setuptools import find_packages, setup
 
 setup(name='pyfco',
       version='1.0.0',
       description='Python Fred Corba utilities',
-      packages=('pyfco', ),
-      )
+      author='Vlastimil Zíma, CZ.NIC',
+      author_email='vlastimil.zima@nic.cz',
+      license='GNU GPL',
+      platforms=['posix'],
+      packages=find_packages())
