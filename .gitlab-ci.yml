@@ -3,45 +3,26 @@ stages:
     - test
     - coverage
 
-isort:
+########################################################################################################################
+# Basic declarations
+.requires-python: &requires-python
     tags:
-        - python2
-    stage: analysis
-    before_script:
-        - pip install isort
-        - pip list
-    script: "make check-isort"
+        - python
 
-flake8:
-    tags:
-        - python2
-    stage: analysis
-    before_script:
-        - pip install flake8
-        - pip list
-    script: "make check-flake8"
+.python2-xenial: &python2-xenial
+    image: cznic/ubuntu_xenial_python2:latest
 
-pydocstyle:
-    tags:
-        - python2
-    stage: analysis
-    before_script:
-        - pip install pydocstyle!=2.1.0
-        - pip list
-    script: "make check-doc"
-
-test:
-    tags:
-        - python2
+.test: &test
+    <<: *requires-python
+    <<: *python2-xenial
     stage: test
-    script:
-        # Install coverage
-        - pip install coverage
-        - mkdir coverage
-        # install omniORB and omniIDL
-        - apt-get update && apt-get install -y python-omniorb omniidl-python
-        - pip install -r requirements-dev.txt
+    before_script:
+        # Install package dependencies
+        - apt-get update && apt-get install -y omniidl-python python-omniorb
+        - pip install -r requirements-dev.txt coverage
         - pip list
+    script:
+        - mkdir coverage
         - make test-coverage
     artifacts:
         expire_in: 1d
@@ -50,12 +31,45 @@ test:
     variables:
         COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
 
+########################################################################################################################
+# Individual jobs
+isort:
+    <<: *requires-python
+    <<: *python2-xenial
+    stage: analysis
+    before_script:
+        - pip install isort
+        - pip list
+    script: "make check-isort"
+
+flake8:
+    <<: *requires-python
+    <<: *python2-xenial
+    stage: analysis
+    before_script:
+        - pip install flake8
+        - pip list
+    script: "make check-flake8"
+
+pydocstyle:
+    <<: *requires-python
+    <<: *python2-xenial
+    stage: analysis
+    before_script:
+        - pip install pydocstyle
+        - pip list
+    script: "make check-doc"
+
+test:
+    <<: *test
+
 coverage-report:
-    tags:
-        - python2
+    <<: *requires-python
+    <<: *python2-xenial
     stage: coverage
     script:
         - pip install coverage
+        - pip list
         - coverage combine coverage/
         - coverage report --include=*/tests/* --fail-under=100
         - coverage report
