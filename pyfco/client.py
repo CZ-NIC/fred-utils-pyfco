@@ -75,11 +75,9 @@ class CorbaClient(object):
 
     def __getattr__(self, name):
         """Publish CORBA object methods."""
-        if hasattr(self.corba_object, name):
-            def wrapper(*args):
-                return self._call(name, *args)
-            return wrapper
-        raise AttributeError
+        def wrapper(*args):
+            return self._call(name, *args)
+        return wrapper
 
 
 # Allows simple modification of client in tests, while keeping nice imports in code.
