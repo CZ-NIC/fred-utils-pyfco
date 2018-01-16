@@ -19,7 +19,7 @@ BuildRequires: python-setuptools
 Requires: python
 
 %description
-Library contains python code to interact FRED corba backend
+Library contains python code interacting with FRED corba backend
 
 %prep
 %setup -n %{name}-%{unmangled_version}
