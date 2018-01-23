@@ -1,2 +1,7 @@
+install.log
+dist/
+build/
+fred-pyfco-*/
+fred_pyfco.egg-info/
 RELEASE-VERSION
 *.pyc
