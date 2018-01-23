@@ -1,2 +1,1 @@
-include MANIFEST.in
 include contrib/fedora/fred-pyfco.spec
