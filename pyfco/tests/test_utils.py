@@ -16,12 +16,14 @@ class OldStyleClass:
 
 class SimpleStruct(StructBase):
     """Simple corba structure for testing."""
+
     def __init__(self, value):
         self.value = value
 
 
 class OtherStruct(StructBase):
     """Simple corba structure for testing."""
+
     def __init__(self, value):
         self.value = value
 
