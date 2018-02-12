@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
 
-setup(name='pyfco',
+setup(name='fred-pyfco',
       version='1.8.0',
-      description='Python Fred Corba utilities',
+      description='PYthon Fred COrba utilities',
       author='Vlastimil Zíma, CZ.NIC',
       author_email='vlastimil.zima@nic.cz',
       license='GNU GPL',
