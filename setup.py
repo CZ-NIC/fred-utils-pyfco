@@ -9,4 +9,6 @@ setup(name='fred-pyfco',
       license='GNU GPL',
       platforms=['posix'],
       packages=find_packages(),
-      install_requires=['pytz'])
+      install_requires=open('requirements.txt').read().splitlines(),
+      extras_require={'testing': ['mock', 'testfixtures'],
+                      'quality': ['isort', 'flake8', 'pydocstyle']})

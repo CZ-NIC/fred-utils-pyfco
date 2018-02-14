@@ -5,3 +5,5 @@ fred-pyfco-*/
 fred_pyfco.egg-info/
 RELEASE-VERSION
 *.pyc
+/.tox
+/.coverage*
