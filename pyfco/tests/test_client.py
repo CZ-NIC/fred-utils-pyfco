@@ -17,6 +17,7 @@ class TestSaneRepr(unittest.TestCase):
     """
     Test `sane_repr` utility function.
     """
+
     def test_sane_repr(self):
         self.assertEqual(sane_repr(None, 1024), "None")
         self.assertEqual(sane_repr(10562, 1024), "10562")
@@ -34,6 +35,7 @@ class SentinelRecoder(CorbaRecoder):
     """
     Corba recoder for tests. Keeps sentinels untouched.
     """
+
     def __init__(self, coding='utf-8'):
         super(SentinelRecoder, self).__init__(coding)
         self.add_recode_function(type(sentinel.DEFAULT), self._identity, self._identity)
@@ -55,6 +57,7 @@ class TestCorbaClient(unittest.TestCase):
     """
     Tests for `CorbaClient` class.
     """
+
     def setUp(self):
         self.corba_object = Mock(spec=['method'])
         # Set the default result
@@ -147,6 +150,7 @@ class TestCorbaClientProxy(unittest.TestCase):
     """
     Test `CorbaClientProxy` class.
     """
+
     def test_proxy(self):
         client_1 = Mock()
         client_2 = Mock()

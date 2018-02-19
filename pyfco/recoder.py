@@ -19,7 +19,7 @@ class CorbaRecoder(object):
         try:
             codecs.lookup(coding)
             self.coding = coding
-        except LookupError, e:
+        except LookupError as e:
             raise UnsupportedEncodingError(e)
 
         self.encode_functions = {}

@@ -45,6 +45,7 @@ class NodeStruct(StructBase):
     """
     Simple corba structure for testing nested structures.
     """
+
     def __init__(self, text, inner):
         self.text = text
         self.inner = inner
