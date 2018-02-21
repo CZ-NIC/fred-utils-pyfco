@@ -1,6 +1,8 @@
 """
 Tests for `pyfco.utils`.
 """
+from __future__ import unicode_literals
+
 import unittest
 
 from mock import call, sentinel

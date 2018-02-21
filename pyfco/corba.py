@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import warnings
 
 from .name_service import CorbaNameServiceClient, init_omniorb_exception_handles

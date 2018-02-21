@@ -1,4 +1,6 @@
 """Test `pyfco.name_service` module."""
+from __future__ import unicode_literals
+
 import unittest
 
 import CosNaming
