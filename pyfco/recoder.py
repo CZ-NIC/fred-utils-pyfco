@@ -2,9 +2,68 @@ from __future__ import unicode_literals
 
 import codecs
 import copy
+import re
 import types
+from datetime import datetime
 
+import pytz
 from omniORB import EnumItem, StructBase
+
+try:
+    from fred_idl.Registry import IsoDate, IsoDateTime
+except ImportError:
+    IsoDate = None
+    IsoDateTime = None
+
+
+ISO_DATETIME_PATTERN = re.compile('^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T'
+                                  '(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(.(?P<microsecond>\d{6}))?'
+                                  '(?P<tzinfo>Z|[+-]\d{2}:?\d{2})$')
+
+
+def decode_iso_date(value):
+    """Decode IsoDate struct to date object.
+
+    @raise ValueError: If date can't be parsed.
+    """
+    return datetime.strptime(value.value, '%Y-%m-%d').date()
+
+
+def encode_iso_date(value):
+    """Encode date object into IsoDate struct."""
+    if IsoDate is None:
+        raise RuntimeError("fred_idl.Registry.IsoDate struct is not found.")
+    return IsoDate(value.isoformat())
+
+
+def decode_iso_datetime(value):
+    """Decode IsoDateTime struct to aware datetime object.
+
+    @raise ValueError: If date time can't be parsed.
+    """
+    match = ISO_DATETIME_PATTERN.match(value.value)
+    if match is None:
+        raise ValueError("{} datetime can't be decoded.".format(value))
+    kwargs = {k: int(v) for k, v in match.groupdict().items() if k != 'tzinfo' and v is not None}
+    tzinfo = match.group('tzinfo')
+    if tzinfo == 'Z':
+        kwargs['tzinfo'] = pytz.utc
+    else:
+        hours = int(tzinfo[1:3])
+        minutes = int(tzinfo[3:].strip(':'))
+        offset = minutes + 60 * hours
+        sign = tzinfo[0]
+        if sign == '-':
+            offset = -offset
+        kwargs['tzinfo'] = pytz.FixedOffset(offset)
+    return datetime(**kwargs)
+
+
+def encode_iso_datetime(value):
+    """Encode datetime object into IsoDateTime struct."""
+    if IsoDateTime is None:
+        raise RuntimeError("fred_idl.Registry.IsoDateTime struct is not found.")
+    return IsoDateTime(value.isoformat())
 
 
 class UnsupportedEncodingError(Exception):
