@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import logging
 import warnings
 
@@ -30,13 +32,13 @@ class CorbaNameServiceClient(object):
     @type orb_args: [str, str, ...]
     """
 
-    orb_args = ['-ORBnativeCharCodeSet', 'UTF-8']
+    orb_args = [b'-ORBnativeCharCodeSet', b'UTF-8']
 
-    def __init__(self, orb=None, host_port='localhost', context_name='fred', retries=5):
+    def __init__(self, orb=None, host_port='localhost', context_name=b'fred', retries=5):
         if orb is not None:
             warnings.warn("'orb' argument is deprecated and should be removed.", DeprecationWarning)
         self.host_port = host_port
-        self.context_name = context_name
+        self.context_name = str(context_name)
         self.context = None
         self.retries = retries
 
@@ -66,6 +68,6 @@ class CorbaNameServiceClient(object):
         """
         if self.context is None:
             self.connect()
-        cosname = [CosNaming.NameComponent(self.context_name, "context"),
-                   CosNaming.NameComponent(name, "Object")]
+        cosname = [CosNaming.NameComponent(self.context_name, b"context"),
+                   CosNaming.NameComponent(str(name), b"Object")]
         return self.context.resolve(cosname)._narrow(idl_object)

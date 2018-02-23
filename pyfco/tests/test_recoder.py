@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import copy
 import unittest
 
@@ -68,20 +70,17 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder decodes basic types to python correctly . """
         rec = self.recoder_class("utf-8")
 
-        decoded_str = rec.decode('string')
-        expected_str = u'string'
+        decoded_str = rec.decode(b'string')
+        expected_str = 'string'
 
-        decoded_str_empty = rec.decode('')
-        expected_str_empty = u''
+        decoded_str_empty = rec.decode(b'')
+        expected_str_empty = ''
 
-        decoded_str_chars = rec.decode('test \xc4\x8d\xc5\xa5')
-        expected_str_chars = u'test \u010d\u0165'
+        decoded_unicode = rec.decode('test \u010d\u0165')
+        expected_unicode = 'test \u010d\u0165'
 
-        decoded_unicode = rec.decode(u'unicode')
-        expected_unicode = u'unicode'
-
-        decoded_unicode_empty = rec.decode(u'')
-        expected_unicode_empty = u''
+        decoded_str_chars = rec.decode(b'test \xc4\x8d\xc5\xa5')
+        expected_str_chars = 'test \u010d\u0165'
 
         decoded_none = rec.decode(None)
         expected_none = None
@@ -113,8 +112,6 @@ class TestCorbaRecoder(unittest.TestCase):
 
         self.assertEqual(decoded_unicode, expected_unicode)
         self.assertEqual(type(decoded_unicode), type(expected_unicode))
-        self.assertEqual(decoded_unicode_empty, expected_unicode_empty)
-        self.assertEqual(type(decoded_unicode_empty), type(expected_unicode_empty))
 
         self.assertEqual(decoded_none, expected_none)
         self.assertEqual(type(decoded_none), type(expected_none))
@@ -139,19 +136,16 @@ class TestCorbaRecoder(unittest.TestCase):
         rec = self.recoder_class("utf-8")
 
         encoded_str = rec.encode('string')
-        expected_str = 'string'
+        expected_str = b'string'
 
         encoded_str_empty = rec.encode('')
-        expected_str_empty = ''
+        expected_str_empty = b''
 
-        encoded_unicode = rec.encode(u'unicode')
-        expected_unicode = 'unicode'
+        encoded_bytes = rec.encode(b'unicode')
+        expected_bytes = b'unicode'
 
-        encoded_unicode_empty = rec.encode(u'')
-        expected_unicode_empty = ''
-
-        encoded_unicode_chars = rec.encode(u'test \u010d\u0165')
-        expected_unicode_chars = 'test \xc4\x8d\xc5\xa5'
+        encoded_unicode_chars = rec.encode('test \u010d\u0165')
+        expected_unicode_chars = b'test \xc4\x8d\xc5\xa5'
 
         encoded_none = rec.encode(None)
         expected_none = None
@@ -179,10 +173,8 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(encoded_str_empty, expected_str_empty)
         self.assertEqual(type(encoded_str_empty), type(expected_str_empty))
 
-        self.assertEqual(encoded_unicode, expected_unicode)
-        self.assertEqual(type(encoded_unicode), type(expected_unicode))
-        self.assertEqual(encoded_unicode_empty, expected_unicode_empty)
-        self.assertEqual(type(encoded_unicode_empty), type(expected_unicode_empty))
+        self.assertEqual(encoded_bytes, expected_bytes)
+        self.assertEqual(type(encoded_bytes), type(expected_bytes))
         self.assertEqual(encoded_unicode_chars, expected_unicode_chars)
         self.assertEqual(type(encoded_unicode_chars), type(expected_unicode_chars))
 
@@ -208,15 +200,15 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder decodes iter types to python correctly . """
         rec = self.recoder_class("utf-8")
 
-        original_tuple = ('string', u'unicode', ('tuple', 4), None, True)
+        original_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
         decoded_tuple = rec.decode(original_tuple)
-        expected_tuple = (u'string', u'unicode', (u'tuple', 4), None, True)
+        expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
 
-        original_list = ['string', u'unicode', ['list', 4], None, True]
+        original_list = [b'string', b'unicode', [b'list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
         decoded_list = rec.decode(original_list)
-        expected_list = [u'string', u'unicode', [u'list', 4], None, True]
+        expected_list = ['string', 'unicode', ['list', 4], None, True]
 
         self.assertEqual(original_tuple, original_tuple_copy)
         self.assertEqual(type(original_tuple), type(original_tuple_copy))
@@ -242,15 +234,15 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder encodes iter types to corba correctly . """
         rec = self.recoder_class("utf-8")
 
-        original_tuple = ('string', u'unicode', (u'tuple', 4), None, True)
+        original_tuple = ('string', 'unicode', ('tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
-        encoded_tuple = rec.encode(('string', u'unicode', (u'tuple', 4), None, True))
-        expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
+        encoded_tuple = rec.encode(('string', 'unicode', ('tuple', 4), None, True))
+        expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
 
-        original_list = ['string', u'unicode', [u'list', 4], None, True]
+        original_list = ['string', 'unicode', ['list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
-        encoded_list = rec.encode(['string', u'unicode', [u'list', 4], None, True])
-        expected_list = ['string', 'unicode', ['list', 4], None, True]
+        encoded_list = rec.encode(['string', 'unicode', ['list', 4], None, True])
+        expected_list = [b'string', b'unicode', [b'list', 4], None, True]
 
         self.assertEqual(original_tuple, original_tuple_copy)
         self.assertEqual(type(original_tuple), type(original_tuple_copy))
@@ -284,18 +276,18 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder decodes corba entity to python correctly . """
         rec = self.recoder_class("utf-8")
         reg = SampleCorbaStruct(
-            id=19, ico='', dic='', varSymb='', vat=False,
-            handle='NEW REG', name='name 1', organization='',
-            street1='chars \xc4\x8d\xc5\xa5', street2='', street3='', city='', stateorprovince='state',
-            postalcode='', country='CZ', telephone='', fax='', email='', url='',
-            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+            id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+            handle=b'NEW REG', name=b'name 1', organization=b'',
+            street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+            postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+            credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
         reg_copy = copy.deepcopy(reg)
         expected = SampleCorbaStruct(
-            id=19, ico=u'', dic=u'', varSymb=u'', vat=False,
-            handle=u'NEW REG', name=u'name 1', organization=u'',
-            street1=u'chars \u010d\u0165', street2=u'', street3=u'', city=u'', stateorprovince=u'state',
-            postalcode=u'', country=u'CZ', telephone=u'', fax=u'', email=u'', url=u'',
-            credit=u'0.00', unspec_credit=u'0.00', access=[], zones=[], hidden=False)
+            id=19, ico='', dic='', varSymb='', vat=False,
+            handle='NEW REG', name='name 1', organization='',
+            street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
+            postalcode='', country='CZ', telephone='', fax='', email='', url='',
+            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
 
         decoded_reg = rec.decode(reg)
 
@@ -313,18 +305,18 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder encodes python entity to corba correctly """
         rec = self.recoder_class("utf-8")
         reg = SampleCorbaStruct(
-            id=19, ico=u'', dic=u'', varSymb=u'', vat=False,
-            handle=u'NEW REG', name=u'name 1', organization=u'',
-            street1=u'chars \u010d\u0165', street2=u'', street3=u'', city=u'', stateorprovince=u'state',
-            postalcode=u'', country=u'CZ', telephone=u'', fax=u'', email=u'', url=u'',
-            credit=u'0.00', unspec_credit=u'0.00', access=[], zones=[], hidden=False)
-        reg_copy = copy.deepcopy(reg)
-        expected = SampleCorbaStruct(
             id=19, ico='', dic='', varSymb='', vat=False,
             handle='NEW REG', name='name 1', organization='',
-            street1='chars \xc4\x8d\xc5\xa5', street2='', street3='', city='', stateorprovince='state',
+            street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
             postalcode='', country='CZ', telephone='', fax='', email='', url='',
             credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+        reg_copy = copy.deepcopy(reg)
+        expected = SampleCorbaStruct(
+            id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+            handle=b'NEW REG', name=b'name 1', organization=b'',
+            street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+            postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+            credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
 
         encoded_entity = rec.encode(reg)
 
@@ -340,7 +332,7 @@ class TestCorbaRecoder(unittest.TestCase):
 
     def test_decode_nested_struct(self):
         rec = self.recoder_class("utf-8")
-        obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
+        obj = NodeStruct(b'A', NodeStruct(b'B', NodeStruct(b'C', None)))
 
         output = rec.decode(obj)
 
@@ -368,7 +360,7 @@ class TestCorbaRecoder(unittest.TestCase):
 
     def test_encode_nested_struct(self):
         rec = self.recoder_class("utf-8")
-        obj = NodeStruct(u'A', NodeStruct(u'B', NodeStruct(u'C', None)))
+        obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
 
         output = rec.encode(obj)
 
@@ -410,17 +402,17 @@ class TestCorbaRecoder(unittest.TestCase):
         """ encode(decode(obj)) is equal to obj. """
         rec = self.recoder_class("utf-8")
         reg = SampleCorbaStruct(
-            id=19, ico='', dic='', varSymb='', vat=False,
-            handle='NEW REG', name='name 1', organization='',
-            street1='chars \xc4\x8d\xc5\xa5', street2='', street3='', city='', stateorprovince='state',
-            postalcode='', country='CZ', telephone='', fax='', email='', url='',
-            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+            id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+            handle=b'NEW REG', name=b'name 1', organization=b'',
+            street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+            postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+            credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
         expected = SampleCorbaStruct(
-            id=19, ico='', dic='', varSymb='', vat=False,
-            handle='NEW REG', name='name 1', organization='',
-            street1='chars \xc4\x8d\xc5\xa5', street2='', street3='', city='', stateorprovince='state',
-            postalcode='', country='CZ', telephone='', fax='', email='', url='',
-            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+            id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+            handle=b'NEW REG', name=b'name 1', organization=b'',
+            street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+            postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+            credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
 
         res = rec.encode(rec.decode(reg))
 
@@ -433,17 +425,17 @@ class TestCorbaRecoder(unittest.TestCase):
         """ decode(encode(obj)) has equal types to obj. """
         rec = self.recoder_class("utf-8")
         reg = SampleCorbaStruct(
-            id=19, ico=u'', dic=u'', varSymb=u'', vat=False,
-            handle=u'NEW REG', name=u'name 1', organization=u'',
-            street1=u'chars \u010d\u0165', street2=u'', street3=u'', city=u'', stateorprovince=u'state',
-            postalcode=u'', country=u'CZ', telephone=u'', fax=u'', email=u'', url=u'',
-            credit=u'0.00', unspec_credit=u'0.00', access=[], zones=[], hidden=False)
+            id=19, ico='', dic='', varSymb='', vat=False,
+            handle='NEW REG', name='name 1', organization='',
+            street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
+            postalcode='', country='CZ', telephone='', fax='', email='', url='',
+            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
         expected = SampleCorbaStruct(
-            id=19, ico=u'', dic=u'', varSymb=u'', vat=False,
-            handle=u'NEW REG', name=u'name 1', organization=u'',
-            street1=u'chars \u010d\u0165', street2=u'', street3=u'', city=u'', stateorprovince=u'state',
-            postalcode=u'', country=u'CZ', telephone=u'', fax=u'', email=u'', url=u'',
-            credit=u'0.00', unspec_credit=u'0.00', access=[], zones=[], hidden=False)
+            id=19, ico='', dic='', varSymb='', vat=False,
+            handle='NEW REG', name='name 1', organization='',
+            street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
+            postalcode='', country='CZ', telephone='', fax='', email='', url='',
+            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
 
         res = rec.decode(rec.encode(reg))
 

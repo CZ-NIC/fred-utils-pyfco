@@ -2,6 +2,8 @@
 """
 Tests for `pyfco.client` module
 """
+from __future__ import unicode_literals
+
 import logging
 import unittest
 from logging.handlers import BufferingHandler
@@ -19,16 +21,15 @@ class TestSaneRepr(unittest.TestCase):
     """
 
     def test_sane_repr(self):
-        self.assertEqual(sane_repr(None, 1024), "None")
-        self.assertEqual(sane_repr(10562, 1024), "10562")
-        self.assertEqual(sane_repr('short', 1024), "'short'")
-        self.assertEqual(sane_repr(u'short', 1024), "u'short'")
-        self.assertEqual(sane_repr(ValueError('A message'), 1024), "ValueError('A message',)")
+        self.assertEqual(sane_repr(None, 1024), str("None"))
+        self.assertEqual(sane_repr(10562, 1024), str("10562"))
+        self.assertEqual(sane_repr('short', 1024), str("u'short'"))
+        self.assertEqual(sane_repr(ValueError('A message'), 1024), str("ValueError(u'A message',)"))
 
-        self.assertEqual(sane_repr('something longer', 10), "'something [truncated]...")
+        self.assertEqual(sane_repr('something longer', 10), str("u'somethin [truncated]..."))
 
-        self.assertEqual(sane_repr('ěščřž', 1024), "'\\xc4\\x9b\\xc5\\xa1\\xc4\\x8d\\xc5\\x99\\xc5\\xbe'")
-        self.assertEqual(sane_repr(u'ěščřž', 1024), "u'\\u011b\\u0161\\u010d\\u0159\\u017e'")
+        self.assertEqual(sane_repr(b'ěščřž', 1024), str("'\\xc4\\x9b\\xc5\\xa1\\xc4\\x8d\\xc5\\x99\\xc5\\xbe'"))
+        self.assertEqual(sane_repr('ěščřž', 1024), str("u'\\u011b\\u0161\\u010d\\u0159\\u017e'"))
 
 
 class SentinelRecoder(CorbaRecoder):
@@ -103,16 +104,16 @@ class TestCorbaClient(unittest.TestCase):
 
     def test_args_encoded(self):
         # Test strings in arguments are encoded before corba is called
-        self.corba_client.method(u'ěščřž', u'ýáíé')
-        self.assertEqual(self.corba_object.mock_calls, [call.method('ěščřž', 'ýáíé')])
+        self.corba_client.method('ěščřž', 'ýáíé')
+        self.assertEqual(self.corba_object.mock_calls, [call.method(b'ěščřž', b'ýáíé')])
         self.assertIsInstance(self.corba_object.mock_calls[0][1][0], str)
         self.assertIsInstance(self.corba_object.mock_calls[0][1][1], str)
 
     def test_result_decoded(self):
         # Test strings in result are decoded
-        self.corba_object.method.return_value = 'ěščřžýáíé'
+        self.corba_object.method.return_value = b'ěščřžýáíé'
         result = self.corba_client.method()
-        self.assertEqual(result, u'ěščřžýáíé')
+        self.assertEqual(result, 'ěščřžýáíé')
         self.assertIsInstance(result, unicode)
 
     def test_unknown_method(self):

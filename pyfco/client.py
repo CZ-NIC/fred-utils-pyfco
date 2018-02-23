@@ -1,4 +1,6 @@
 """Corba client."""
+from __future__ import unicode_literals
+
 import logging
 import random
 import string

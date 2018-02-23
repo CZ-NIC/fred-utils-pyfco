@@ -1,4 +1,6 @@
 """Utilities."""
+from __future__ import unicode_literals
+
 import inspect
 import types
 from unittest.util import safe_repr
