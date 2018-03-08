@@ -8,4 +8,5 @@ setup(name='fred-pyfco',
       author_email='vlastimil.zima@nic.cz',
       license='GNU GPL',
       platforms=['posix'],
-      packages=find_packages())
+      packages=find_packages(),
+      install_requires=['pytz'])

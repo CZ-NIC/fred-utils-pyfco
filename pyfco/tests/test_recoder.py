@@ -2,12 +2,110 @@ from __future__ import unicode_literals
 
 import copy
 import unittest
+from datetime import date, datetime
 
+import pytz
 from omniORB import EnumItem, StructBase
 
-from pyfco.recoder import CorbaRecoder, UnsupportedEncodingError
+from pyfco.recoder import CorbaRecoder, UnsupportedEncodingError, decode_iso_date, decode_iso_datetime, \
+    encode_iso_date, encode_iso_datetime
+from pyfco.utils import CorbaAssertMixin
+
+try:
+    from fred_idl.Registry import IsoDate, IsoDateTime
+except ImportError:  # pragma: no cover
+    IsoDate = None
+    IsoDateTime = None
 
 TEST_ENUM_ITEM = EnumItem("MyEnumItem", 42)
+
+
+class TestIsoDate(CorbaAssertMixin, unittest.TestCase):
+    """Test `decode_iso_date` and `encode_iso_date` functions."""
+
+    @unittest.skipIf(IsoDate is None, "fred_idl.Registry.IsoDate struct is not found.")
+    def test_decode(self):  # pragma: no cover
+        self.assertEqual(decode_iso_date(IsoDate('1970-02-01')), date(1970, 2, 1))
+
+    @unittest.skipIf(IsoDate is None, "fred_idl.Registry.IsoDate struct is not found.")
+    def test_decode_invalid(self):  # pragma: no cover
+        self.assertRaises(ValueError, decode_iso_date, IsoDate('1970-02-31'))
+
+    @unittest.skipIf(IsoDate is None, "fred_idl.Registry.IsoDate struct is not found.")
+    def test_encode(self):  # pragma: no cover
+        self.assertEqual(encode_iso_date(date(1970, 2, 1)), IsoDate('1970-02-01'))
+
+    @unittest.skipIf(IsoDate is not None, "fred_idl.Registry.IsoDate struct is not found.")
+    def test_encode_not_implemented(self):  # pragma: no cover
+        self.assertRaises(RuntimeError, encode_iso_date, date(1970, 2, 1))
+
+
+class TestIsoDateTime(CorbaAssertMixin, unittest.TestCase):
+    """Test `decode_iso_datetime` and `encode_iso_datetime` functions."""
+
+    @unittest.skipIf(IsoDateTime is None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_decode(self):  # pragma: no cover
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16Z')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
+
+    @unittest.skipIf(IsoDateTime is None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_decode_zones(self):  # pragma: no cover
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+0000')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+00:00')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16-0000')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16-00:00')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
+
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+0005')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(5)))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+0020')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(20)))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+0100')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(60)))
+
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+1000')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(600)))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+10:00')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(600)))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16-1000')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(-600)))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16-10:00')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(-600)))
+
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16+1135')),
+                         datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.FixedOffset(695)))
+
+    @unittest.skipIf(IsoDateTime is None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_decode_microseconds(self):  # pragma: no cover
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16.123456Z')),
+                         datetime(1970, 2, 1, 12, 14, 16, 123456, tzinfo=pytz.utc))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16.000123Z')),
+                         datetime(1970, 2, 1, 12, 14, 16, 123, tzinfo=pytz.utc))
+        self.assertEqual(decode_iso_datetime(IsoDate('1970-02-01T12:14:16.000123+0200')),
+                         datetime(1970, 2, 1, 12, 14, 16, 123, tzinfo=pytz.FixedOffset(120)))
+
+    @unittest.skipIf(IsoDateTime is None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_decode_invalid(self):  # pragma: no cover
+        self.assertRaises(ValueError, decode_iso_datetime, IsoDateTime('1970-02-31T04:06:08Z'))
+        self.assertRaises(ValueError, decode_iso_datetime, IsoDateTime('1970-02-03T04:06:08.666Z'))
+        # Datetime without a zone
+        self.assertRaises(ValueError, decode_iso_datetime, IsoDateTime('1970-02-03T04:06:08'))
+
+    @unittest.skipIf(IsoDateTime is None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_encode(self):  # pragma: no cover
+        self.assertEqual(encode_iso_datetime(datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc)),
+                         IsoDateTime('1970-02-01T12:14:16+00:00'))
+        self.assertEqual(encode_iso_datetime(datetime(1970, 2, 1, 12, 14, 16, 123456, tzinfo=pytz.utc)),
+                         IsoDateTime('1970-02-01T12:14:16.123456+00:00'))
+        self.assertEqual(encode_iso_datetime(datetime(1970, 2, 1, 12, 14, 16, 123456, tzinfo=pytz.FixedOffset(90))),
+                         IsoDateTime('1970-02-01T12:14:16.123456+01:30'))
+
+    @unittest.skipIf(IsoDateTime is not None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_encode_not_implemented(self):  # pragma: no cover
+        self.assertRaises(RuntimeError, encode_iso_datetime, datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
 
 
 class SampleCorbaStruct(StructBase):

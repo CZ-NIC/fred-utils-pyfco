@@ -1,3 +1,7 @@
+variables:
+    # Add path to the IDL directory
+    PYTHONPATH: ":idl"
+
 stages:
     - analysis
     - test
@@ -19,7 +23,16 @@ stages:
     before_script:
         # Install package dependencies
         - apt-get update && apt-get install -y omniidl-python python-omniorb
-        - pip install -r requirements-dev.txt coverage
+        # Get pr-version and update requirements
+        - git clone git@gitlab.office.nic.cz:pr-utils/pr-version.git --depth 1
+        - pervert-requirements.py
+        - cat requirements.txt
+        # Parse IDL requirements
+        - if [ -e pr-version/devel/$CI_BUILD_REF_NAME.conf ]; then IDL_BRANCH=$(python -c "import json;obj=json.load(open('pr-version/devel/${CI_BUILD_REF_NAME}.conf'));print obj.get('idl',{}).get('revision', 'master')"); fi
+        - git clone git@gitlab.office.nic.cz:fred/idl.git
+        - (cd idl && git checkout $IDL_BRANCH && omniidl -bpython -Wbmodules=fred_idl -Wbstubs=fred_idl._stubs idl/*.idl)
+        # Install dependencies
+        - pip install -r requirements.txt -r requirements-dev.txt coverage
         - pip list
     script:
         - mkdir coverage
