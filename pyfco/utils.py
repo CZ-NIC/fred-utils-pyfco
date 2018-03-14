@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import inspect
-import types
 from unittest.util import safe_repr
 
 import omniORB
@@ -13,17 +12,10 @@ class CorbaAssertMixin(object):
 
     corba_equality_funcs = {}
 
-    def __init__(self, *args, **kwargs):
-        super(CorbaAssertMixin, self).__init__(*args, **kwargs)
-        self.addTypeEqualityFunc(types.InstanceType, 'assertInstanceEqual')
-
-    def assertInstanceEqual(self, first, second, msg=None):
-        """Compare objects of the instance (old-style) classes."""
-        if isinstance(first, omniORB.StructBase) and isinstance(second, omniORB.StructBase):
-            assertion_func = self._get_corba_equality_func(first)
-            assertion_func(first, second, msg=msg)
-        else:
-            self._baseAssertEqual(first, second, msg=msg)
+    def _getAssertEqualityFunc(self, first, second):
+        if isinstance(first, omniORB.StructBase):
+            return self._get_corba_equality_func(first)
+        return super(CorbaAssertMixin, self)._getAssertEqualityFunc(first, second)
 
     def _get_corba_equality_func(self, first):
         asserter = self.corba_equality_funcs.get(first.__class__)
