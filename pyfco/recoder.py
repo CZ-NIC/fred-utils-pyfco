@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 import codecs
 import copy
 import re
-import types
 from datetime import datetime
 
 import pytz
+import six
 from fred_idl.Registry import IsoDate, IsoDateTime
 from omniORB import EnumItem, StructBase
 
@@ -75,15 +75,15 @@ class CorbaRecoder(object):
 
         self.encode_functions = {}
         self.decode_functions = {}
-        self.add_recode_function(str, self._decode_str, self._identity)
-        self.add_recode_function(unicode, self._identity, self._encode_unicode)
+        self.add_recode_function(six.binary_type, self._decode_str, self._identity)
+        self.add_recode_function(six.text_type, self._identity, self._encode_unicode)
         self.add_recode_function(bool, self._identity, self._identity)
         self.add_recode_function(float, self._identity, self._identity)
-        self.add_recode_function(int, self._identity, self._identity)
-        self.add_recode_function(long, self._identity, self._identity)
-        self.add_recode_function(types.NoneType, self._identity, self._identity)
-        self.add_recode_function(types.TupleType, self._decode_iter, self._encode_iter)
-        self.add_recode_function(types.ListType, self._decode_iter, self._encode_iter)
+        for int_type in six.integer_types:
+            self.add_recode_function(int_type, self._identity, self._identity)
+        self.add_recode_function(type(None), self._identity, self._identity)
+        self.add_recode_function(tuple, self._decode_iter, self._encode_iter)
+        self.add_recode_function(list, self._decode_iter, self._encode_iter)
         self.add_recode_function(StructBase, self._decode_struct, self._encode_struct)
         # Do not decode/encode enum items
         self.add_recode_function(EnumItem, self._identity, self._identity)

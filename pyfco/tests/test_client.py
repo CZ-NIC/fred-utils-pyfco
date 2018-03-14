@@ -8,8 +8,10 @@ import logging
 import unittest
 from logging.handlers import BufferingHandler
 
+import six
 from mock import Mock, call, patch, sentinel
 from omniORB import CORBA
+from testfixtures import StringComparison
 
 from pyfco import CorbaRecoder
 from pyfco.client import CorbaClient, CorbaClientProxy, sane_repr
@@ -23,13 +25,18 @@ class TestSaneRepr(unittest.TestCase):
     def test_sane_repr(self):
         self.assertEqual(sane_repr(None, 1024), str("None"))
         self.assertEqual(sane_repr(10562, 1024), str("10562"))
-        self.assertEqual(sane_repr('short', 1024), str("u'short'"))
-        self.assertEqual(sane_repr(ValueError('A message'), 1024), str("ValueError(u'A message',)"))
+        self.assertEqual(sane_repr('short', 1024), StringComparison("u?'short'"))
+        self.assertEqual(sane_repr(ValueError('A message'), 1024), StringComparison("ValueError\(u?'A message',\)"))
 
-        self.assertEqual(sane_repr('something longer', 10), str("u'somethin [truncated]..."))
+        # Letter "g" on the end is present if unicode prefix is absent
+        self.assertEqual(sane_repr('something longer', 10), StringComparison("u?'something? \[truncated\]..."))
 
-        self.assertEqual(sane_repr(b'ěščřž', 1024), str("'\\xc4\\x9b\\xc5\\xa1\\xc4\\x8d\\xc5\\x99\\xc5\\xbe'"))
-        self.assertEqual(sane_repr('ěščřž', 1024), str("u'\\u011b\\u0161\\u010d\\u0159\\u017e'"))
+        self.assertEqual(sane_repr('ěščřž'.encode('utf-8'), 1024),
+                         StringComparison("b?'\\\\xc4\\\\x9b\\\\xc5\\\\xa1\\\\xc4\\\\x8d\\\\xc5\\\\x99\\\\xc5\\\\xbe'"))
+        if six.PY2:
+            self.assertEqual(sane_repr('ěščřž', 1024), str("u'\\u011b\\u0161\\u010d\\u0159\\u017e'"))
+        else:
+            self.assertEqual(sane_repr('ěščřž', 1024), str("'ěščřž'"))
 
 
 class SentinelRecoder(CorbaRecoder):
@@ -105,16 +112,16 @@ class TestCorbaClient(unittest.TestCase):
     def test_args_encoded(self):
         # Test strings in arguments are encoded before corba is called
         self.corba_client.method('ěščřž', 'ýáíé')
-        self.assertEqual(self.corba_object.mock_calls, [call.method(b'ěščřž', b'ýáíé')])
-        self.assertIsInstance(self.corba_object.mock_calls[0][1][0], str)
-        self.assertIsInstance(self.corba_object.mock_calls[0][1][1], str)
+        self.assertEqual(self.corba_object.mock_calls, [call.method('ěščřž'.encode('utf-8'), 'ýáíé'.encode('utf-8'))])
+        self.assertIsInstance(self.corba_object.mock_calls[0][1][0], six.binary_type)
+        self.assertIsInstance(self.corba_object.mock_calls[0][1][1], six.binary_type)
 
     def test_result_decoded(self):
         # Test strings in result are decoded
-        self.corba_object.method.return_value = b'ěščřžýáíé'
+        self.corba_object.method.return_value = 'ěščřžýáíé'.encode('utf-8')
         result = self.corba_client.method()
         self.assertEqual(result, 'ěščřžýáíé')
-        self.assertIsInstance(result, unicode)
+        self.assertIsInstance(result, six.text_type)
 
     def test_unknown_method(self):
         with self.assertRaises(AttributeError):

@@ -5,6 +5,7 @@ import inspect
 from unittest.util import safe_repr
 
 import omniORB
+import six
 
 
 class CorbaAssertMixin(object):
@@ -20,7 +21,7 @@ class CorbaAssertMixin(object):
     def _get_corba_equality_func(self, first):
         asserter = self.corba_equality_funcs.get(first.__class__)
         if asserter is not None:
-            if isinstance(asserter, basestring):
+            if isinstance(asserter, six.string_types):
                 asserter = getattr(self, asserter)
             return asserter
         return self._base_struct_equal
