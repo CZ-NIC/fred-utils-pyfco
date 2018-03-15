@@ -5,7 +5,6 @@ variables:
 stages:
     - analysis
     - test
-    - coverage
 
 ########################################################################################################################
 # Basic declarations
@@ -23,66 +22,47 @@ stages:
     before_script:
         # Install package dependencies
         - apt-get update && apt-get install -y omniidl-python python-omniorb
-        # Get pr-version and update requirements
+        # Get pr-version and update IDL requirements
         - git clone git@gitlab.office.nic.cz:pr-utils/pr-version.git --depth 1
-        - pervert-requirements.py
-        - cat requirements.txt
-        # Parse IDL requirements
         - if [ -e pr-version/devel/$CI_BUILD_REF_NAME.conf ]; then IDL_BRANCH=$(python -c "import json;obj=json.load(open('pr-version/devel/${CI_BUILD_REF_NAME}.conf'));print obj.get('idl',{}).get('revision', 'master')"); fi
         - git clone git@gitlab.office.nic.cz:fred/idl.git
         - (cd idl && git checkout $IDL_BRANCH && omniidl -bpython -Wbmodules=fred_idl -Wbstubs=fred_idl._stubs idl/*.idl)
-        # Install dependencies
-        - pip install -r requirements.txt -r requirements-dev.txt coverage
-        - pip list
+        - pip install tox
+        - pip install git+https://github.com/balabit/tox-debian-plugin.git
     script:
-        - mkdir coverage
-        - make test-coverage
-    artifacts:
-        expire_in: 1d
-        paths:
-        - coverage/
-    variables:
-        COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
+        - tox
+
 
 ########################################################################################################################
 # Individual jobs
-isort:
+quality:
     <<: *requires-python
     <<: *python2-xenial
     stage: analysis
     before_script:
-        - pip install isort
-        - pip list
-    script: "make check-isort"
+        - pip install tox
+    script:
+        - tox -e quality
 
-flake8:
+depcheck:
     <<: *requires-python
     <<: *python2-xenial
     stage: analysis
+    only:
+        - schedules
     before_script:
-        - pip install flake8
-        - pip list
-    script: "make check-flake8"
-
-pydocstyle:
-    <<: *requires-python
-    <<: *python2-xenial
-    stage: analysis
-    before_script:
-        - pip install pydocstyle
-        - pip list
-    script: "make check-doc"
+        # Install package with testing dependencies to verify versions
+        - pip install --process-dependency-links .[testing]
+    script:
+        - check-constraints.py constraints.txt
+    allow_failure: true
 
 test:
     <<: *test
 
-coverage-report:
-    <<: *requires-python
-    <<: *python2-xenial
-    stage: coverage
+test-thawed:
+    <<: *test
+    only:
+        - schedules
     script:
-        - pip install coverage
-        - pip list
-        - coverage combine coverage/
-        - coverage report --include=*/tests/* --fail-under=100
-        - coverage report --omit=*/tests/*
+        - tox -e thaw
