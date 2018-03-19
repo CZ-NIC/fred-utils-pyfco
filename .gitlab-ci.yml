@@ -2,10 +2,6 @@ variables:
     # Add path to the IDL directory
     PYTHONPATH: ":idl"
 
-stages:
-    - analysis
-    - test
-
 ########################################################################################################################
 # Basic declarations
 .requires-python: &requires-python
@@ -18,7 +14,6 @@ stages:
 .test: &test
     <<: *requires-python
     <<: *python2-xenial
-    stage: test
     before_script:
         # Install package dependencies
         - apt-get update && apt-get install -y omniidl-python python-omniorb
@@ -35,19 +30,9 @@ stages:
 
 ########################################################################################################################
 # Individual jobs
-quality:
-    <<: *requires-python
-    <<: *python2-xenial
-    stage: analysis
-    before_script:
-        - pip install tox
-    script:
-        - tox -e quality
-
 depcheck:
     <<: *requires-python
     <<: *python2-xenial
-    stage: analysis
     only:
         - schedules
     before_script:
