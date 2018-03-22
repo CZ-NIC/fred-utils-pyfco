@@ -7,14 +7,8 @@ import types
 from datetime import datetime
 
 import pytz
+from fred_idl.Registry import IsoDate, IsoDateTime
 from omniORB import EnumItem, StructBase
-
-try:
-    from fred_idl.Registry import IsoDate, IsoDateTime
-except ImportError:
-    IsoDate = None
-    IsoDateTime = None
-
 
 ISO_DATETIME_PATTERN = re.compile('^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T'
                                   '(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(.(?P<microsecond>\d{6}))?'
@@ -31,8 +25,6 @@ def decode_iso_date(value):
 
 def encode_iso_date(value):
     """Encode date object into IsoDate struct."""
-    if IsoDate is None:
-        raise RuntimeError("fred_idl.Registry.IsoDate struct is not found.")
     return IsoDate(value.isoformat())
 
 
@@ -61,8 +53,6 @@ def decode_iso_datetime(value):
 
 def encode_iso_datetime(value):
     """Encode datetime object into IsoDateTime struct."""
-    if IsoDateTime is None:
-        raise RuntimeError("fred_idl.Registry.IsoDateTime struct is not found.")
     return IsoDateTime(value.isoformat())
 
 
