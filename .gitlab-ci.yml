@@ -1,6 +1,5 @@
 variables:
-    # Add path to the IDL directory
-    PYTHONPATH: ":idl"
+    IDL_DIR: "idl"
 
 ########################################################################################################################
 # Basic declarations
