@@ -107,6 +107,10 @@ class TestIsoDateTime(CorbaAssertMixin, unittest.TestCase):
     def test_encode_not_implemented(self):  # pragma: no cover
         self.assertRaises(RuntimeError, encode_iso_datetime, datetime(1970, 2, 1, 12, 14, 16, tzinfo=pytz.utc))
 
+    @unittest.skipIf(IsoDateTime is not None, "fred_idl.Registry.IsoDateTime struct is not found.")
+    def test_encode_naive(self):  # pragma: no cover
+        self.assertRaises(ValueError, encode_iso_datetime, datetime(1970, 2, 1, 12, 14, 16))
+
 
 class SampleCorbaStruct(StructBase):
     _NP_RepositoryId = "IDL:SampleCorbaStruct:1.0"
