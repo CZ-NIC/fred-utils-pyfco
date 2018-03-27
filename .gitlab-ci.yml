@@ -8,6 +8,7 @@ variables:
         - python
 
 .python2-xenial: &python2-xenial
+    # Image with scratch sources
     image: cznic/ubuntu_xenial_python2:latest
 
 .test: &test

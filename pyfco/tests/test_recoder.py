@@ -5,6 +5,7 @@ import unittest
 from datetime import date, datetime
 
 import pytz
+import six
 from fred_idl.Registry import IsoDate, IsoDateTime
 from omniORB import EnumItem, StructBase
 
@@ -412,24 +413,24 @@ class TestCorbaRecoder(unittest.TestCase):
 
         # Check output
         self.assertEqual(output.text, 'A')
-        self.assertIsInstance(output.text, unicode)
+        self.assertIsInstance(output.text, six.text_type)
         self.assertIsInstance(output.inner, NodeStruct)
         self.assertEqual(output.inner.text, 'B')
-        self.assertIsInstance(output.inner.text, unicode)
+        self.assertIsInstance(output.inner.text, six.text_type)
         self.assertIsInstance(output.inner.inner, NodeStruct)
         self.assertEqual(output.inner.inner.text, 'C')
-        self.assertIsInstance(output.inner.inner.text, unicode)
+        self.assertIsInstance(output.inner.inner.text, six.text_type)
         self.assertIsNone(output.inner.inner.inner)
 
         # Check original object
-        self.assertEqual(obj.text, 'A')
-        self.assertIsInstance(obj.text, str)
+        self.assertEqual(obj.text, b'A')
+        self.assertIsInstance(obj.text, six.binary_type)
         self.assertIsInstance(obj.inner, NodeStruct)
-        self.assertEqual(obj.inner.text, 'B')
-        self.assertIsInstance(obj.inner.text, str)
+        self.assertEqual(obj.inner.text, b'B')
+        self.assertIsInstance(obj.inner.text, six.binary_type)
         self.assertIsInstance(obj.inner.inner, NodeStruct)
-        self.assertEqual(obj.inner.inner.text, 'C')
-        self.assertIsInstance(obj.inner.inner.text, str)
+        self.assertEqual(obj.inner.inner.text, b'C')
+        self.assertIsInstance(obj.inner.inner.text, six.binary_type)
         self.assertIsNone(obj.inner.inner.inner)
 
     def test_encode_nested_struct(self):
@@ -439,25 +440,25 @@ class TestCorbaRecoder(unittest.TestCase):
         output = rec.encode(obj)
 
         # Check output
-        self.assertEqual(output.text, 'A')
-        self.assertIsInstance(output.text, str)
+        self.assertEqual(output.text, b'A')
+        self.assertIsInstance(output.text, six.binary_type)
         self.assertIsInstance(output.inner, NodeStruct)
-        self.assertEqual(output.inner.text, 'B')
-        self.assertIsInstance(output.inner.text, str)
+        self.assertEqual(output.inner.text, b'B')
+        self.assertIsInstance(output.inner.text, six.binary_type)
         self.assertIsInstance(output.inner.inner, NodeStruct)
-        self.assertEqual(output.inner.inner.text, 'C')
-        self.assertIsInstance(output.inner.inner.text, str)
+        self.assertEqual(output.inner.inner.text, b'C')
+        self.assertIsInstance(output.inner.inner.text, six.binary_type)
         self.assertIsNone(output.inner.inner.inner)
 
         # Check original object
         self.assertEqual(obj.text, 'A')
-        self.assertIsInstance(obj.text, unicode)
+        self.assertIsInstance(obj.text, six.text_type)
         self.assertIsInstance(obj.inner, NodeStruct)
         self.assertEqual(obj.inner.text, 'B')
-        self.assertIsInstance(obj.inner.text, unicode)
+        self.assertIsInstance(obj.inner.text, six.text_type)
         self.assertIsInstance(obj.inner.inner, NodeStruct)
         self.assertEqual(obj.inner.inner.text, 'C')
-        self.assertIsInstance(obj.inner.inner.text, unicode)
+        self.assertIsInstance(obj.inner.inner.text, six.text_type)
         self.assertIsNone(obj.inner.inner.inner)
 
     def test_decode_other(self):
