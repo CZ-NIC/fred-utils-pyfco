@@ -84,6 +84,9 @@ class TestIsoDateTime(CorbaAssertMixin, unittest.TestCase):
         self.assertEqual(encode_iso_datetime(datetime(1970, 2, 1, 12, 14, 16, 123456, tzinfo=pytz.FixedOffset(90))),
                          IsoDateTime('1970-02-01T12:14:16.123456+01:30'))
 
+    def test_encode_naive(self):
+        self.assertRaises(ValueError, encode_iso_datetime, datetime(1970, 2, 1, 12, 14, 16))
+
 
 class SampleCorbaStruct(StructBase):
     _NP_RepositoryId = "IDL:SampleCorbaStruct:1.0"
