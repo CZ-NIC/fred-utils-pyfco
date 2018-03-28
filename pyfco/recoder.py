@@ -60,9 +60,11 @@ def decode_iso_datetime(value):
 
 
 def encode_iso_datetime(value):
-    """Encode datetime object into IsoDateTime struct."""
+    """Encode aware datetime object into IsoDateTime struct."""
     if IsoDateTime is None:
         raise RuntimeError("fred_idl.Registry.IsoDateTime struct is not found.")
+    if value.tzinfo is None:
+        raise ValueError("Only aware datetime objects can be encoded.")
     return IsoDateTime(value.isoformat())
 
 
