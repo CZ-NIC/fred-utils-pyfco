@@ -65,9 +65,12 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
-        calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()]),
-                 call().string_to_object('corbaname::localhost'),
-                 call().string_to_object()._narrow(CosNaming.NamingContext)]
+        if six.PY2:
+            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+        else:
+            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        calls.extend([call().string_to_object('corbaname::localhost'),
+                      call().string_to_object()._narrow(CosNaming.NamingContext)])
         self.assertEqual(init_mock.mock_calls, calls)
         self.assertEqual(install_mock.mock_calls,
                          [call(None, corba_obj.retry_handler, init_mock.return_value.string_to_object.return_value)])
@@ -86,9 +89,12 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
-        calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()]),
-                 call().string_to_object('corbaname::localhost'),
-                 call().string_to_object()._narrow(CosNaming.NamingContext)]
+        if six.PY2:
+            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+        else:
+            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        calls.extend([call().string_to_object('corbaname::localhost'),
+                      call().string_to_object()._narrow(CosNaming.NamingContext)])
         self.assertEqual(init_mock.mock_calls, calls)
         self.assertEqual(install_mock.mock_calls,
                          [call(None, corba_obj.retry_handler, init_mock.return_value.string_to_object.return_value)])
@@ -103,11 +109,14 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             call('fred'.encode(), 'context'.encode()),
             call('Logger'.encode(), 'Object'.encode()),
         ])
-        calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()]),
-                 call().string_to_object('corbaname::localhost'),
-                 call().string_to_object()._narrow(CosNaming.NamingContext),
-                 call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
-                 call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')]
+        if six.PY2:
+            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+        else:
+            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        calls.extend([call().string_to_object('corbaname::localhost'),
+                      call().string_to_object()._narrow(CosNaming.NamingContext),
+                      call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
+                      call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
         self.assertEqual(init_mock.mock_calls, calls)
 
     def test_corba_get_object_text(self):
@@ -122,11 +131,14 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             call('fred'.encode(), 'context'.encode()),
             call('Logger'.encode(), 'Object'.encode()),
         ])
-        calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()]),
-                 call().string_to_object('corbaname::localhost'),
-                 call().string_to_object()._narrow(CosNaming.NamingContext),
-                 call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
-                 call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')]
+        if six.PY2:
+            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+        else:
+            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        calls.extend([call().string_to_object('corbaname::localhost'),
+                      call().string_to_object()._narrow(CosNaming.NamingContext),
+                      call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
+                      call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
         self.assertEqual(init_mock.mock_calls, calls)
 
     def test_corba_context_is_not_none(self):

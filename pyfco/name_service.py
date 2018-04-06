@@ -65,8 +65,13 @@ class CorbaNameServiceClient(object):
         """Connect to the corba server and attach TRANSIENT error handler."""
         orb_args = []
         for orb_arg in self.orb_args:
-            if isinstance(orb_arg, six.text_type):
+            if isinstance(orb_arg, six.binary_type):
+                warnings.warn("Setting 'orb_args' as six.binary_type is deprecated. Please use six.text_type.",
+                              DeprecationWarning)
+            if isinstance(orb_arg, six.text_type) and six.PY2:
                 orb_arg = orb_arg.encode()
+            elif isinstance(orb_arg, six.binary_type) and six.PY3:
+                orb_arg = orb_arg.decode()
             orb_args.append(orb_arg)
         orb = CORBA.ORB_init(orb_args)
         obj = orb.string_to_object('corbaname::' + self.host_port)
