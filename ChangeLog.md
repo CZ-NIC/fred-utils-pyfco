@@ -1,3 +1,9 @@
+## 1.13.0 (2018-04-17) ##
+
+ * Make new ISO date time structures required.
+ * Use tox for testing.
+ * Add Python 3 support.
+
 ## 1.12.0 (2018-03-15) ##
 
  * Add conversions for new iso date time structs.
