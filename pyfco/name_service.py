@@ -10,12 +10,6 @@ from omniORB import CORBA, installTransientExceptionHandler
 _LOGGER = logging.getLogger(__name__)
 
 
-def init_omniorb_exception_handles(cookie):
-    """Bound exception handles with omniORB API."""
-    warnings.warn("'init_omniorb_exception_handles' is obsolete and does nothing. It should be removed.",
-                  DeprecationWarning)
-
-
 class CorbaNameServiceClient(object):
     """
     Corba name service client connects to the corba server.
@@ -35,9 +29,7 @@ class CorbaNameServiceClient(object):
 
     orb_args = ['-ORBnativeCharCodeSet', 'UTF-8']
 
-    def __init__(self, orb=None, host_port='localhost', context_name='fred', retries=5):
-        if orb is not None:
-            warnings.warn("'orb' argument is deprecated and should be removed.", DeprecationWarning)
+    def __init__(self, host_port='localhost', context_name='fred', retries=5):
         if isinstance(host_port, six.binary_type):
             warnings.warn("Passing 'host_port' as six.binary_type is deprecated. Please pass six.text_type.",
                           DeprecationWarning)

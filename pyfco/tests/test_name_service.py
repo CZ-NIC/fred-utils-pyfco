@@ -8,16 +8,7 @@ import six
 from mock import Mock, call, patch, sentinel
 from testfixtures import ShouldWarn
 
-from pyfco.name_service import CorbaNameServiceClient, init_omniorb_exception_handles
-
-
-class TestInitOmniorbExceptionHandles(unittest.TestCase):
-    """Test `init_omniorb_exception_handles`."""
-
-    def test_init_omniorb_exception_handles(self):
-        msg = "'init_omniorb_exception_handles' is obsolete and does nothing. It should be removed."
-        with ShouldWarn(DeprecationWarning(msg)):
-            init_omniorb_exception_handles(sentinel)
+from pyfco.name_service import CorbaNameServiceClient
 
 
 class TestCorbaNameServiceClient(unittest.TestCase):
@@ -31,10 +22,6 @@ class TestCorbaNameServiceClient(unittest.TestCase):
         self.assertTrue(client.retry_handler(sentinel.cookie, 2, sentinel.exc))
         self.assertFalse(client.retry_handler(sentinel.cookie, 3, sentinel.exc))
         self.assertFalse(client.retry_handler(sentinel.cookie, 17, sentinel.exc))
-
-    def test_corba_orb_deprecated(self):
-        with ShouldWarn(DeprecationWarning("'orb' argument is deprecated and should be removed.")):
-            CorbaNameServiceClient(orb=sentinel.orb)
 
     def test_init(self):
         corba_obj = CorbaNameServiceClient(context_name='test')
