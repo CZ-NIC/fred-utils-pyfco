@@ -9,7 +9,7 @@ variables:
 
 .python2-xenial: &python2-xenial
     # Image with scratch sources
-    image: cznic/ubuntu_xenial_python2:latest
+    image: $CI_REGISTRY/ginger/base/ubuntu_xenial_python2:latest
 
 .test: &test
     <<: *requires-python
