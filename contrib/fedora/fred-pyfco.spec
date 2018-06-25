@@ -16,7 +16,7 @@ BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
 BuildRequires: python-setuptools
-Requires: python
+Requires: python python-six python-pytz python-omniORB
 
 %description
 Library contains python code interacting with FRED corba backend
