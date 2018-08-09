@@ -92,19 +92,20 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             with patch('pyfco.name_service.CORBA.ORB_init', autospec=True) as init_mock:
                 with patch.object(CosNaming, "NameComponent") as mock_name_component:
                     corba_obj.get_object("Logger", "ccRegTest.Logger")
-        self.assertEqual(mock_name_component.mock_calls, [
-            call('fred'.encode(), 'context'.encode()),
-            call('Logger'.encode(), 'Object'.encode()),
-        ])
         if six.PY2:
-            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+            name_calls = [call('fred'.encode(), 'context'.encode()),
+                          call('Logger'.encode(), 'Object'.encode())]
+            init_calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
         else:
-            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
-        calls.extend([call().string_to_object('corbaname::localhost'),
-                      call().string_to_object()._narrow(CosNaming.NamingContext),
-                      call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
-                      call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
-        self.assertEqual(init_mock.mock_calls, calls)
+            name_calls = [call('fred', 'context'),
+                          call('Logger', 'Object')]
+            init_calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        self.assertEqual(mock_name_component.mock_calls, name_calls)
+        init_calls.extend([call().string_to_object('corbaname::localhost'),
+                           call().string_to_object()._narrow(CosNaming.NamingContext),
+                           call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
+                           call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
+        self.assertEqual(init_mock.mock_calls, init_calls)
 
     def test_corba_get_object_text(self):
         corba_obj = CorbaNameServiceClient()
@@ -114,19 +115,20 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 ShouldWarn(DeprecationWarning("Passing 'name' as six.binary_type is deprecated. "
                                               "Please pass six.text_type.")):
             corba_obj.get_object(b"Logger", "ccRegTest.Logger")
-        self.assertEqual(mock_name_component.mock_calls, [
-            call('fred'.encode(), 'context'.encode()),
-            call('Logger'.encode(), 'Object'.encode()),
-        ])
         if six.PY2:
-            calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
+            name_calls = [call('fred'.encode(), 'context'.encode()),
+                          call('Logger'.encode(), 'Object'.encode())]
+            init_calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
         else:
-            calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
-        calls.extend([call().string_to_object('corbaname::localhost'),
-                      call().string_to_object()._narrow(CosNaming.NamingContext),
-                      call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
-                      call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
-        self.assertEqual(init_mock.mock_calls, calls)
+            name_calls = [call('fred', 'context'),
+                          call('Logger', 'Object')]
+            init_calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
+        self.assertEqual(mock_name_component.mock_calls, name_calls)
+        init_calls.extend([call().string_to_object('corbaname::localhost'),
+                           call().string_to_object()._narrow(CosNaming.NamingContext),
+                           call().string_to_object()._narrow().resolve([mock_name_component(), mock_name_component()]),
+                           call().string_to_object()._narrow().resolve()._narrow('ccRegTest.Logger')])
+        self.assertEqual(init_mock.mock_calls, init_calls)
 
     def test_corba_context_is_not_none(self):
         mock_context = Mock()
@@ -140,7 +142,13 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             call.resolve([mock_name_component.return_value, mock_name_component.return_value]),
             call.resolve()._narrow('ccRegTest.Logger')
         ])
-        self.assertEqual(mock_name_component.mock_calls, [
-            call('fred'.encode(), 'context'.encode()),
-            call('Logger'.encode(), 'Object'.encode())
-        ])
+        if six.PY2:
+            self.assertEqual(mock_name_component.mock_calls, [
+                call('fred'.encode(), 'context'.encode()),
+                call('Logger'.encode(), 'Object'.encode())
+            ])
+        else:
+            self.assertEqual(mock_name_component.mock_calls, [
+                call('fred', 'context'),
+                call('Logger', 'Object')
+            ])
