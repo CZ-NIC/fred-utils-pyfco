@@ -81,12 +81,22 @@ class CorbaNameServiceClient(object):
         """
         if self.context is None:
             self.connect()
-        if isinstance(name, six.text_type):
-            name = name.encode()
-        else:
+        if isinstance(name, six.binary_type):
             warnings.warn("Passing 'name' as six.binary_type is deprecated. Please pass six.text_type.",
                           DeprecationWarning)
-        context_name = self.context_name.encode()
-        cosname = [CosNaming.NameComponent(context_name, b"context"),
-                   CosNaming.NameComponent(name, b"Object")]
+        if isinstance(name, six.text_type) and six.PY2:
+            name = name.encode()
+        elif isinstance(name, six.binary_type) and six.PY3:
+            name = name.decode()
+        if six.PY2:
+            context_kind = b"context"
+            name_kind = b"Object"
+            context_name = self.context_name.encode()
+        else:
+            assert six.PY3
+            context_kind = "context"
+            name_kind = "Object"
+            context_name = self.context_name
+        cosname = [CosNaming.NameComponent(context_name, context_kind),
+                   CosNaming.NameComponent(name, name_kind)]
         return self.context.resolve(cosname)._narrow(idl_object)
