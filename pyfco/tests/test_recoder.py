@@ -148,18 +148,6 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder decodes basic types to python correctly . """
         rec = self.recoder_class("utf-8")
 
-        decoded_str = rec.decode(b'string')
-        expected_str = 'string'
-
-        decoded_str_empty = rec.decode(b'')
-        expected_str_empty = ''
-
-        decoded_unicode = rec.decode('test \u010d\u0165')
-        expected_unicode = 'test \u010d\u0165'
-
-        decoded_str_chars = rec.decode(b'test \xc4\x8d\xc5\xa5')
-        expected_str_chars = 'test \u010d\u0165'
-
         decoded_none = rec.decode(None)
         expected_none = None
 
@@ -180,16 +168,6 @@ class TestCorbaRecoder(unittest.TestCase):
 
         decoded_bool2 = rec.decode(False)
         expected_bool2 = False
-
-        self.assertEqual(decoded_str, expected_str)
-        self.assertEqual(type(decoded_str), type(expected_str))
-        self.assertEqual(decoded_str_empty, expected_str_empty)
-        self.assertEqual(type(decoded_str_empty), type(expected_str_empty))
-        self.assertEqual(decoded_str_chars, expected_str_chars)
-        self.assertEqual(type(decoded_str_chars), type(expected_str_chars))
-
-        self.assertEqual(decoded_unicode, expected_unicode)
-        self.assertEqual(type(decoded_unicode), type(expected_unicode))
 
         self.assertEqual(decoded_none, expected_none)
         self.assertEqual(type(decoded_none), type(expected_none))
@@ -213,18 +191,6 @@ class TestCorbaRecoder(unittest.TestCase):
         """ CorbaRecoder encodes basic types to corba correctly . """
         rec = self.recoder_class("utf-8")
 
-        encoded_str = rec.encode('string')
-        expected_str = b'string'
-
-        encoded_str_empty = rec.encode('')
-        expected_str_empty = b''
-
-        encoded_bytes = rec.encode(b'unicode')
-        expected_bytes = b'unicode'
-
-        encoded_unicode_chars = rec.encode('test \u010d\u0165')
-        expected_unicode_chars = b'test \xc4\x8d\xc5\xa5'
-
         encoded_none = rec.encode(None)
         expected_none = None
 
@@ -246,16 +212,6 @@ class TestCorbaRecoder(unittest.TestCase):
         encoded_bool2 = rec.encode(False)
         expected_bool2 = False
 
-        self.assertEqual(encoded_str, expected_str)
-        self.assertEqual(type(encoded_str), type(expected_str))
-        self.assertEqual(encoded_str_empty, expected_str_empty)
-        self.assertEqual(type(encoded_str_empty), type(expected_str_empty))
-
-        self.assertEqual(encoded_bytes, expected_bytes)
-        self.assertEqual(type(encoded_bytes), type(expected_bytes))
-        self.assertEqual(encoded_unicode_chars, expected_unicode_chars)
-        self.assertEqual(type(encoded_unicode_chars), type(expected_unicode_chars))
-
         self.assertEqual(encoded_none, expected_none)
         self.assertEqual(type(encoded_none), type(expected_none))
 
@@ -274,6 +230,80 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(encoded_bool2, expected_bool2)
         self.assertEqual(type(encoded_bool2), type(expected_bool2))
 
+    def test_decode_strings(self):
+        rec = self.recoder_class("utf-8")
+
+        decoded_bytes = rec.decode(b'string')
+        if six.PY2:
+            expected_bytes = 'string'
+        else:
+            assert six.PY3
+            expected_bytes = b'string'
+
+        decoded_bytes_empty = rec.decode(b'')
+        if six.PY2:
+            expected_bytes_empty = ''
+        else:
+            assert six.PY3
+            expected_bytes_empty = b''
+
+        decoded_text = rec.decode('test \u010d\u0165')
+        expected_text = 'test \u010d\u0165'
+
+        decoded_bytes_chars = rec.decode(b'test \xc4\x8d\xc5\xa5')
+        if six.PY2:
+            expected_bytes_chars = 'test \u010d\u0165'
+        else:
+            assert six.PY3
+            expected_bytes_chars = b'test \xc4\x8d\xc5\xa5'
+
+        self.assertEqual(decoded_bytes, expected_bytes)
+        self.assertEqual(type(decoded_bytes), type(expected_bytes))
+        self.assertEqual(decoded_bytes_empty, expected_bytes_empty)
+        self.assertEqual(type(decoded_bytes_empty), type(expected_bytes_empty))
+        self.assertEqual(decoded_bytes_chars, expected_bytes_chars)
+        self.assertEqual(type(decoded_bytes_chars), type(expected_bytes_chars))
+
+        self.assertEqual(decoded_text, expected_text)
+        self.assertEqual(type(decoded_text), type(expected_text))
+
+    def test_encode_strings(self):
+        rec = self.recoder_class("utf-8")
+
+        encoded_bytes = rec.encode('string')
+        if six.PY2:
+            expected_bytes = b'string'
+        else:
+            assert six.PY3
+            expected_bytes = 'string'
+
+        encoded_bytes_empty = rec.encode('')
+        if six.PY2:
+            expected_bytes_empty = b''
+        else:
+            assert six.PY3
+            expected_bytes_empty = ''
+
+        encoded_bytes = rec.encode(b'unicode')
+        expected_bytes = b'unicode'
+
+        encoded_text_chars = rec.encode('test \u010d\u0165')
+        if six.PY2:
+            expected_text_chars = b'test \xc4\x8d\xc5\xa5'
+        else:
+            assert six.PY3
+            expected_text_chars = 'test \u010d\u0165'
+
+        self.assertEqual(encoded_bytes, expected_bytes)
+        self.assertEqual(type(encoded_bytes), type(expected_bytes))
+        self.assertEqual(encoded_bytes_empty, expected_bytes_empty)
+        self.assertEqual(type(encoded_bytes_empty), type(expected_bytes_empty))
+
+        self.assertEqual(encoded_bytes, expected_bytes)
+        self.assertEqual(type(encoded_bytes), type(expected_bytes))
+        self.assertEqual(encoded_text_chars, expected_text_chars)
+        self.assertEqual(type(encoded_text_chars), type(expected_text_chars))
+
     def test_decode_iter_types(self):
         """ CorbaRecoder decodes iter types to python correctly . """
         rec = self.recoder_class("utf-8")
@@ -281,12 +311,20 @@ class TestCorbaRecoder(unittest.TestCase):
         original_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
         decoded_tuple = rec.decode(original_tuple)
-        expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
+        if six.PY2:
+            expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
+        else:
+            assert six.PY3
+            expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
 
         original_list = [b'string', b'unicode', [b'list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
         decoded_list = rec.decode(original_list)
-        expected_list = ['string', 'unicode', ['list', 4], None, True]
+        if six.PY2:
+            expected_list = ['string', 'unicode', ['list', 4], None, True]
+        else:
+            assert six.PY3
+            expected_list = [b'string', b'unicode', [b'list', 4], None, True]
 
         self.assertEqual(original_tuple, original_tuple_copy)
         self.assertEqual(type(original_tuple), type(original_tuple_copy))
@@ -315,12 +353,20 @@ class TestCorbaRecoder(unittest.TestCase):
         original_tuple = ('string', 'unicode', ('tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
         encoded_tuple = rec.encode(('string', 'unicode', ('tuple', 4), None, True))
-        expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
+        if six.PY2:
+            expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
+        else:
+            assert six.PY3
+            expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
 
         original_list = ['string', 'unicode', ['list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
         encoded_list = rec.encode(['string', 'unicode', ['list', 4], None, True])
-        expected_list = [b'string', b'unicode', [b'list', 4], None, True]
+        if six.PY2:
+            expected_list = [b'string', b'unicode', [b'list', 4], None, True]
+        else:
+            assert six.PY3
+            expected_list = ['string', 'unicode', ['list', 4], None, True]
 
         self.assertEqual(original_tuple, original_tuple_copy)
         self.assertEqual(type(original_tuple), type(original_tuple_copy))
@@ -360,12 +406,21 @@ class TestCorbaRecoder(unittest.TestCase):
             postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
             credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
         reg_copy = copy.deepcopy(reg)
-        expected = SampleCorbaStruct(
-            id=19, ico='', dic='', varSymb='', vat=False,
-            handle='NEW REG', name='name 1', organization='',
-            street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
-            postalcode='', country='CZ', telephone='', fax='', email='', url='',
-            credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+        if six.PY2:
+            expected = SampleCorbaStruct(
+                id=19, ico='', dic='', varSymb='', vat=False,
+                handle='NEW REG', name='name 1', organization='',
+                street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
+                postalcode='', country='CZ', telephone='', fax='', email='', url='',
+                credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
+        else:
+            assert six.PY3
+            expected = SampleCorbaStruct(
+                id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+                handle=b'NEW REG', name=b'name 1', organization=b'',
+                street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+                postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+                credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
 
         decoded_reg = rec.decode(reg)
 
@@ -389,12 +444,21 @@ class TestCorbaRecoder(unittest.TestCase):
             postalcode='', country='CZ', telephone='', fax='', email='', url='',
             credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
         reg_copy = copy.deepcopy(reg)
-        expected = SampleCorbaStruct(
-            id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
-            handle=b'NEW REG', name=b'name 1', organization=b'',
-            street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
-            postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
-            credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
+        if six.PY2:
+            expected = SampleCorbaStruct(
+                id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
+                handle=b'NEW REG', name=b'name 1', organization=b'',
+                street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
+                postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
+                credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
+        else:
+            assert six.PY3
+            expected = SampleCorbaStruct(
+                id=19, ico='', dic='', varSymb='', vat=False,
+                handle='NEW REG', name='name 1', organization='',
+                street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
+                postalcode='', country='CZ', telephone='', fax='', email='', url='',
+                credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
 
         encoded_entity = rec.encode(reg)
 
@@ -408,7 +472,8 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(type(encoded_entity.__dict__['vat']), type(expected.__dict__['vat']))
         self.assertEqual(type(encoded_entity.__dict__['access']), type(expected.__dict__['access']))
 
-    def test_decode_nested_struct(self):
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    def test_decode_nested_struct_py2(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct(b'A', NodeStruct(b'B', NodeStruct(b'C', None)))
 
@@ -436,7 +501,31 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertIsInstance(obj.inner.inner.text, six.binary_type)
         self.assertIsNone(obj.inner.inner.inner)
 
-    def test_encode_nested_struct(self):
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    def test_decode_nested_struct(self):
+        rec = self.recoder_class("utf-8")
+        obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
+
+        output = rec.decode(obj)
+
+        # Check output
+        self.assertEqual(output.text, 'A')
+        self.assertIsInstance(output.inner, NodeStruct)
+        self.assertEqual(output.inner.text, 'B')
+        self.assertIsInstance(output.inner.inner, NodeStruct)
+        self.assertEqual(output.inner.inner.text, 'C')
+        self.assertIsNone(output.inner.inner.inner)
+
+        # Check original object
+        self.assertEqual(obj.text, 'A')
+        self.assertIsInstance(obj.inner, NodeStruct)
+        self.assertEqual(obj.inner.text, 'B')
+        self.assertIsInstance(obj.inner.inner, NodeStruct)
+        self.assertEqual(obj.inner.inner.text, 'C')
+        self.assertIsNone(obj.inner.inner.inner)
+
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    def test_encode_nested_struct_py2(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
 
@@ -462,6 +551,29 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertIsInstance(obj.inner.inner, NodeStruct)
         self.assertEqual(obj.inner.inner.text, 'C')
         self.assertIsInstance(obj.inner.inner.text, six.text_type)
+        self.assertIsNone(obj.inner.inner.inner)
+
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    def test_encode_nested_struct(self):
+        rec = self.recoder_class("utf-8")
+        obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
+
+        output = rec.encode(obj)
+
+        # Check output
+        self.assertEqual(output.text, 'A')
+        self.assertIsInstance(output.inner, NodeStruct)
+        self.assertEqual(output.inner.text, 'B')
+        self.assertIsInstance(output.inner.inner, NodeStruct)
+        self.assertEqual(output.inner.inner.text, 'C')
+        self.assertIsNone(output.inner.inner.inner)
+
+        # Check original object
+        self.assertEqual(obj.text, 'A')
+        self.assertIsInstance(obj.inner, NodeStruct)
+        self.assertEqual(obj.inner.text, 'B')
+        self.assertIsInstance(obj.inner.inner, NodeStruct)
+        self.assertEqual(obj.inner.inner.text, 'C')
         self.assertIsNone(obj.inner.inner.inner)
 
     def test_decode_other(self):
