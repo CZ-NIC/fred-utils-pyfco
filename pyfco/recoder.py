@@ -77,8 +77,18 @@ class CorbaRecoder(object):
 
         self.encode_functions = {}
         self.decode_functions = {}
-        self.add_recode_function(six.binary_type, self._decode_str, self._identity)
-        self.add_recode_function(six.text_type, self._identity, self._encode_unicode)
+
+        # Strings encoding
+        if six.PY2:
+            binary_decoder = self._decode_str
+            text_encoder = self._encode_unicode
+        else:
+            assert six.PY3
+            binary_decoder = self._identity
+            text_encoder = self._identity
+        self.add_recode_function(six.binary_type, binary_decoder, self._identity)
+        self.add_recode_function(six.text_type, self._identity, text_encoder)
+
         self.add_recode_function(bool, self._identity, self._identity)
         self.add_recode_function(float, self._identity, self._identity)
         for int_type in six.integer_types:

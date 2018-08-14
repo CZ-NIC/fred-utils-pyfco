@@ -109,19 +109,34 @@ class TestCorbaClient(unittest.TestCase):
         self.assertEqual(self.corba_client.method(), sentinel.result)
         self.assertEqual(self.corba_object.mock_calls, [call.method()])
 
-    def test_args_encoded(self):
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    def test_args_encoded_py2(self):
         # Test strings in arguments are encoded before corba is called
         self.corba_client.method('ěščřž', 'ýáíé')
         self.assertEqual(self.corba_object.mock_calls, [call.method('ěščřž'.encode('utf-8'), 'ýáíé'.encode('utf-8'))])
         self.assertIsInstance(self.corba_object.mock_calls[0][1][0], six.binary_type)
         self.assertIsInstance(self.corba_object.mock_calls[0][1][1], six.binary_type)
 
-    def test_result_decoded(self):
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    def test_args_encoded(self):
+        # Test strings in arguments are encoded before corba is called
+        self.corba_client.method('ěščřž', 'ýáíé')
+        self.assertEqual(self.corba_object.mock_calls, [call.method('ěščřž', 'ýáíé')])
+
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    def test_result_decoded_py2(self):
         # Test strings in result are decoded
         self.corba_object.method.return_value = 'ěščřžýáíé'.encode('utf-8')
         result = self.corba_client.method()
         self.assertEqual(result, 'ěščřžýáíé')
         self.assertIsInstance(result, six.text_type)
+
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    def test_result_decoded(self):
+        # Test strings in result are decoded
+        self.corba_object.method.return_value = 'ěščřžýáíé'
+        result = self.corba_client.method()
+        self.assertEqual(result, 'ěščřžýáíé')
 
     def test_unknown_method(self):
         with self.assertRaises(AttributeError):
