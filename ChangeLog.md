@@ -1,6 +1,7 @@
 ## 1.14.0 (2018-07-20) ##
 
  * Drop code deprecated since 1.7.
+ * Fix bugs under Python 3.
  * Fix Fedora builds.
 
 ## 1.13.0 (2018-04-17) ##
