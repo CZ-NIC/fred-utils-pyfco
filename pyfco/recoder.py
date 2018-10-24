@@ -10,9 +10,9 @@ import six
 from fred_idl.Registry import IsoDate, IsoDateTime
 from omniORB import EnumItem, StructBase
 
-ISO_DATETIME_PATTERN = re.compile('^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T'
-                                  '(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(.(?P<microsecond>\d{6}))?'
-                                  '(?P<tzinfo>Z|[+-]\d{2}:?\d{2})$')
+ISO_DATETIME_PATTERN = re.compile(r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T'
+                                  r'(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(.(?P<microsecond>\d{6}))?'
+                                  r'(?P<tzinfo>Z|[+-]\d{2}:?\d{2})$')
 
 
 def decode_iso_date(value):
