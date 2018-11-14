@@ -26,10 +26,10 @@ class TestSaneRepr(unittest.TestCase):
         self.assertEqual(sane_repr(None, 1024), str("None"))
         self.assertEqual(sane_repr(10562, 1024), str("10562"))
         self.assertEqual(sane_repr('short', 1024), StringComparison("u?'short'"))
-        self.assertEqual(sane_repr(ValueError('A message'), 1024), StringComparison("ValueError\(u?'A message',\)"))
+        self.assertEqual(sane_repr(ValueError('A message'), 1024), StringComparison(r"ValueError\(u?'A message',\)"))
 
         # Letter "g" on the end is present if unicode prefix is absent
-        self.assertEqual(sane_repr('something longer', 10), StringComparison("u?'something? \[truncated\]..."))
+        self.assertEqual(sane_repr('something longer', 10), StringComparison(r"u?'something? \[truncated\]..."))
 
         self.assertEqual(sane_repr('ěščřž'.encode('utf-8'), 1024),
                          StringComparison("b?'\\\\xc4\\\\x9b\\\\xc5\\\\xa1\\\\xc4\\\\x8d\\\\xc5\\\\x99\\\\xc5\\\\xbe'"))
