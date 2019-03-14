@@ -1,3 +1,7 @@
+stages:
+    - analysis
+    - test
+
 variables:
     IDL_DIR: "idl"
 
@@ -12,6 +16,7 @@ variables:
     image: $CI_REGISTRY/ginger/base/ubuntu_xenial_python2:latest
 
 .test: &test
+    stage: test
     <<: *requires-python
     <<: *python2-xenial
     before_script:
@@ -32,6 +37,7 @@ variables:
 # Individual jobs
 licensing:
     <<: *python2-xenial
+    stage: analysis
     before_script:
         - git clone git@gitlab.office.nic.cz:internal-tools/license-check.git --single-branch --depth 1
     script:
@@ -40,6 +46,7 @@ licensing:
 depcheck:
     <<: *requires-python
     <<: *python2-xenial
+    stage: analysis
     only:
         - schedules
     before_script:
