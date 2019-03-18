@@ -1,3 +1,9 @@
+## 1.15.0 (2019-03-28) ##
+
+ * Fix regexp raw strings
+ * License GNU GPLv3+
+ * CI fixes
+
 ## 1.14.0 (2018-07-20) ##
 
  * Drop code deprecated since 1.7.
