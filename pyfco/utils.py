@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -54,7 +54,11 @@ class CorbaAssertMixin(object):
 
         self.assertEqual(first.__class__, second.__class__, msg)
 
-        args = inspect.getargspec(first.__class__.__init__).args
+        # Use newer call in Python 3
+        if hasattr(inspect, 'getfullargspec'):
+            args = inspect.getfullargspec(first.__class__.__init__).args
+        else:
+            args = inspect.getargspec(first.__class__.__init__).args
         self.assertEqual(args[0], 'self',
                          "First argument of the '%s.__init__' is not 'self'" % first.__class__.__name__)
         args = args[1:]
