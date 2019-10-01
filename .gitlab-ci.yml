@@ -1,9 +1,14 @@
+########################################################################################################################
+# This file was generated using python_env, please do not edit directly.
+########################################################################################################################
+
 stages:
     - image
     - analysis
     - test
 
 variables:
+    TOX_PARALLEL_NO_SPINNER: 1
     IDL_DIR: "idl"
 
 ########################################################################################################################
@@ -47,7 +52,7 @@ image:ubuntu:bionic:
         # Set up SSH key for access to gitlab repositories
         - install -m 700 -d $HOME/.ssh
         - install -m 600 $SRC_DIR/{id_rsa,id_rsa.pub,known_hosts} $HOME/.ssh/
-        # Get pr-version and update dependency_link and parse IDL requirementss
+        # Get pr-version and update dependency_link and parse IDL requirements
         - git clone git@gitlab.office.nic.cz:pr-utils/pr-version.git --depth 1
         - if [ -e pr-version/devel/$CI_BUILD_REF_NAME.conf ]; then IDL_BRANCH=$(python3 -c "import json;obj=json.loads(open('pr-version/devel/${CI_BUILD_REF_NAME}.conf').read());print(obj.get('idl',{}).get('revision', 'master'))"); fi
         - git clone git@gitlab.office.nic.cz:fred/idl.git
@@ -58,6 +63,8 @@ image:ubuntu:bionic:
 .test: &test
     <<: *install-dependencies
     script:
+        # First, build all virtualenvs in parallel without actually executing any tests.
+        - tox --parallel all --notest
         - tox
 
 ########################################################################################################################
@@ -70,17 +77,14 @@ licensing:
         - git clone git@gitlab.office.nic.cz:internal-tools/license-check.git --single-branch --depth 1
         - ./license-check/license-check.sh -v
 
-depcheck:
+piprot:
     <<: *ubuntu-bionic
-    <<: *install-dependencies
     stage: analysis
     only:
         - schedules
     script:
-        - git clone https://gitlab.office.nic.cz/vzima/ci-tools.git --depth=1
-        # Install package with testing dependencies to verify versions
-        - pip3 install .[testing]
-        - python3 ./ci-tools/check-constraints.py constraints.txt
+        - pip install piprot
+        - piprot requirements.txt constraints.txt
     allow_failure: true
 
 test:xenial:
