@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -28,5 +28,5 @@ setup(name='fred-pyfco',
       platforms=['posix'],
       packages=find_packages(),
       install_requires=open('requirements.txt').read().splitlines(),
-      extras_require={'testing': ['mock', 'testfixtures'],
+      extras_require={'test': ['mock', 'testfixtures'],
                       'quality': ['isort', 'flake8', 'pydocstyle']})
