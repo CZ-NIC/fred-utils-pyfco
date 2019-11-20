@@ -1,3 +1,7 @@
+## 1.15.1 (2019-11-20) ##
+
+ * Update spec file for F31 and Centos/RHEL 8
+
 ## 1.15.0 (2019-03-28) ##
 
  * Fix regexp raw strings
