@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -41,8 +41,7 @@ ALLOWED_CHARS = string.ascii_letters + string.digits
 
 
 class CorbaClient(object):
-    """
-    Corba client - wrapper over Corba object.
+    """Corba client - wrapper over Corba object.
 
     @cvar max_length: Maximum length of `result` represantation in logs.
     """
@@ -50,8 +49,7 @@ class CorbaClient(object):
     max_length = 2048
 
     def __init__(self, corba_object, recoder, server_error_cls=None):
-        """
-        Initialize instance.
+        """Initialize instance.
 
         @param corba_object: Corba object to be wrapped.
         @type corba_object: `omniORB.CORBA.Object`
@@ -102,8 +100,7 @@ class CorbaClient(object):
 
 # Allows simple modification of client in tests, while keeping nice imports in code.
 class CorbaClientProxy(object):
-    """
-    Proxy for Corba client instance.
+    """Proxy for Corba client instance.
 
     @ivar client: Corba client instance
     @type client: `CorbaClient`
