@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -29,8 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class CorbaNameServiceClient(object):
-    """
-    Corba name service client connects to the corba server.
+    """Corba name service client connects to the corba server.
 
     @ivar host_port: Host and port to the Corba service. E.g. 'hostname:port'.
     @type host_port: C{six.text_type}
@@ -89,8 +88,7 @@ class CorbaNameServiceClient(object):
         self.context = obj._narrow(CosNaming.NamingContext)
 
     def get_object(self, name, idl_object):
-        """
-        Get object from the corba server. Corba objects are loaded by omniORB.importIDL.
+        """Get object from the corba server. Corba objects are loaded by omniORB.importIDL.
 
         @param name: Name of NameComponent object. For example: "Logger"
         @type name: C{six.text_type}

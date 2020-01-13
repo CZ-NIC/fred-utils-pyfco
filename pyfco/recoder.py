@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -142,8 +142,7 @@ class CorbaRecoder(object):
         return type(val)([self.encode(x) for x in val])
 
     def _decode_struct(self, val):
-        """
-        Return decoded Corba structure.
+        """Return decoded Corba structure.
 
         Decodes all attributes.
         """
@@ -157,8 +156,7 @@ class CorbaRecoder(object):
         return answer
 
     def _encode_struct(self, val):
-        """
-        Return encoded Corba structure.
+        """Return encoded Corba structure.
 
         Encodes all attributes.
         """
