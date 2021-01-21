@@ -1,5 +1,4 @@
 include contrib/fedora/fred-pyfco.spec
 include requirements.txt
-include constraints.txt
 include COPYING
 include LICENSE
