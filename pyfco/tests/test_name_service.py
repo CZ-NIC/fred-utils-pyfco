@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -69,9 +69,9 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
-        else:
+        else:  # pragma: no cover
             calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
         calls.extend([call().string_to_object('corbaname::localhost'),
                       call().string_to_object()._narrow(CosNaming.NamingContext)])
@@ -93,9 +93,9 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 corba_obj.connect()
 
         self.assertEqual(corba_obj.context, sentinel.context)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
-        else:
+        else:  # pragma: no cover
             calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
         calls.extend([call().string_to_object('corbaname::localhost'),
                       call().string_to_object()._narrow(CosNaming.NamingContext)])
@@ -109,11 +109,11 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             with patch('pyfco.name_service.CORBA.ORB_init', autospec=True) as init_mock:
                 with patch.object(CosNaming, "NameComponent") as mock_name_component:
                     corba_obj.get_object("Logger", "ccRegTest.Logger")
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             name_calls = [call('fred'.encode(), 'context'.encode()),
                           call('Logger'.encode(), 'Object'.encode())]
             init_calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
-        else:
+        else:  # pragma: no cover
             name_calls = [call('fred', 'context'),
                           call('Logger', 'Object')]
             init_calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
@@ -132,11 +132,11 @@ class TestCorbaNameServiceClient(unittest.TestCase):
                 ShouldWarn(DeprecationWarning("Passing 'name' as six.binary_type is deprecated. "
                                               "Please pass six.text_type.")):
             corba_obj.get_object(b"Logger", "ccRegTest.Logger")
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             name_calls = [call('fred'.encode(), 'context'.encode()),
                           call('Logger'.encode(), 'Object'.encode())]
             init_calls = [call(['-ORBnativeCharCodeSet'.encode(), 'UTF-8'.encode()])]
-        else:
+        else:  # pragma: no cover
             name_calls = [call('fred', 'context'),
                           call('Logger', 'Object')]
             init_calls = [call(['-ORBnativeCharCodeSet', 'UTF-8'])]
@@ -159,12 +159,12 @@ class TestCorbaNameServiceClient(unittest.TestCase):
             call.resolve([mock_name_component.return_value, mock_name_component.return_value]),
             call.resolve()._narrow('ccRegTest.Logger')
         ])
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             self.assertEqual(mock_name_component.mock_calls, [
                 call('fred'.encode(), 'context'.encode()),
                 call('Logger'.encode(), 'Object'.encode())
             ])
-        else:
+        else:  # pragma: no cover
             self.assertEqual(mock_name_component.mock_calls, [
                 call('fred', 'context'),
                 call('Logger', 'Object')

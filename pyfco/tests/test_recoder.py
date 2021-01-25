@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -251,16 +251,16 @@ class TestCorbaRecoder(unittest.TestCase):
         rec = self.recoder_class("utf-8")
 
         decoded_bytes = rec.decode(b'string')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_bytes = 'string'
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_bytes = b'string'
 
         decoded_bytes_empty = rec.decode(b'')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_bytes_empty = ''
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_bytes_empty = b''
 
@@ -268,9 +268,9 @@ class TestCorbaRecoder(unittest.TestCase):
         expected_text = 'test \u010d\u0165'
 
         decoded_bytes_chars = rec.decode(b'test \xc4\x8d\xc5\xa5')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_bytes_chars = 'test \u010d\u0165'
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_bytes_chars = b'test \xc4\x8d\xc5\xa5'
 
@@ -288,16 +288,16 @@ class TestCorbaRecoder(unittest.TestCase):
         rec = self.recoder_class("utf-8")
 
         encoded_bytes = rec.encode('string')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_bytes = b'string'
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_bytes = 'string'
 
         encoded_bytes_empty = rec.encode('')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_bytes_empty = b''
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_bytes_empty = ''
 
@@ -305,9 +305,9 @@ class TestCorbaRecoder(unittest.TestCase):
         expected_bytes = b'unicode'
 
         encoded_text_chars = rec.encode('test \u010d\u0165')
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_text_chars = b'test \xc4\x8d\xc5\xa5'
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_text_chars = 'test \u010d\u0165'
 
@@ -328,18 +328,18 @@ class TestCorbaRecoder(unittest.TestCase):
         original_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
         decoded_tuple = rec.decode(original_tuple)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
 
         original_list = [b'string', b'unicode', [b'list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
         decoded_list = rec.decode(original_list)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_list = ['string', 'unicode', ['list', 4], None, True]
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_list = [b'string', b'unicode', [b'list', 4], None, True]
 
@@ -370,18 +370,18 @@ class TestCorbaRecoder(unittest.TestCase):
         original_tuple = ('string', 'unicode', ('tuple', 4), None, True)
         original_tuple_copy = copy.deepcopy(original_tuple)
         encoded_tuple = rec.encode(('string', 'unicode', ('tuple', 4), None, True))
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_tuple = (b'string', b'unicode', (b'tuple', 4), None, True)
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_tuple = ('string', 'unicode', ('tuple', 4), None, True)
 
         original_list = ['string', 'unicode', ['list', 4], None, True]
         original_list_copy = copy.deepcopy(original_list)
         encoded_list = rec.encode(['string', 'unicode', ['list', 4], None, True])
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected_list = [b'string', b'unicode', [b'list', 4], None, True]
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected_list = ['string', 'unicode', ['list', 4], None, True]
 
@@ -423,14 +423,14 @@ class TestCorbaRecoder(unittest.TestCase):
             postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
             credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
         reg_copy = copy.deepcopy(reg)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected = SampleCorbaStruct(
                 id=19, ico='', dic='', varSymb='', vat=False,
                 handle='NEW REG', name='name 1', organization='',
                 street1='chars \u010d\u0165', street2='', street3='', city='', stateorprovince='state',
                 postalcode='', country='CZ', telephone='', fax='', email='', url='',
                 credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected = SampleCorbaStruct(
                 id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
@@ -461,14 +461,14 @@ class TestCorbaRecoder(unittest.TestCase):
             postalcode='', country='CZ', telephone='', fax='', email='', url='',
             credit='0.00', unspec_credit='0.00', access=[], zones=[], hidden=False)
         reg_copy = copy.deepcopy(reg)
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             expected = SampleCorbaStruct(
                 id=19, ico=b'', dic=b'', varSymb=b'', vat=False,
                 handle=b'NEW REG', name=b'name 1', organization=b'',
                 street1=b'chars \xc4\x8d\xc5\xa5', street2=b'', street3=b'', city=b'', stateorprovince=b'state',
                 postalcode=b'', country=b'CZ', telephone=b'', fax=b'', email=b'', url=b'',
                 credit=b'0.00', unspec_credit=b'0.00', access=[], zones=[], hidden=False)
-        else:
+        else:  # pragma: no cover
             assert six.PY3
             expected = SampleCorbaStruct(
                 id=19, ico='', dic='', varSymb='', vat=False,
@@ -489,7 +489,7 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(type(encoded_entity.__dict__['vat']), type(expected.__dict__['vat']))
         self.assertEqual(type(encoded_entity.__dict__['access']), type(expected.__dict__['access']))
 
-    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")  # pragma: no cover
     def test_decode_nested_struct_py2(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct(b'A', NodeStruct(b'B', NodeStruct(b'C', None)))
@@ -518,7 +518,7 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertIsInstance(obj.inner.inner.text, six.binary_type)
         self.assertIsNone(obj.inner.inner.inner)
 
-    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")  # pragma: no cover
     def test_decode_nested_struct(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
@@ -541,7 +541,7 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertEqual(obj.inner.inner.text, 'C')
         self.assertIsNone(obj.inner.inner.inner)
 
-    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")  # pragma: no cover
     def test_encode_nested_struct_py2(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
@@ -570,7 +570,7 @@ class TestCorbaRecoder(unittest.TestCase):
         self.assertIsInstance(obj.inner.inner.text, six.text_type)
         self.assertIsNone(obj.inner.inner.inner)
 
-    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")  # pragma: no cover
     def test_encode_nested_struct(self):
         rec = self.recoder_class("utf-8")
         obj = NodeStruct('A', NodeStruct('B', NodeStruct('C', None)))
