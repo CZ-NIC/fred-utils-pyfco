@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -43,16 +43,16 @@ class TestSaneRepr(unittest.TestCase):
         self.assertEqual(sane_repr(None, 1024), str("None"))
         self.assertEqual(sane_repr(10562, 1024), str("10562"))
         self.assertEqual(sane_repr('short', 1024), StringComparison("u?'short'"))
-        self.assertEqual(sane_repr(ValueError('A message'), 1024), StringComparison(r"ValueError\(u?'A message',\)"))
+        self.assertEqual(sane_repr(ValueError('A message'), 1024), StringComparison(r"ValueError\(u?'A message',?\)"))
 
         # Letter "g" on the end is present if unicode prefix is absent
         self.assertEqual(sane_repr('something longer', 10), StringComparison(r"u?'something? \[truncated\]..."))
 
         self.assertEqual(sane_repr('ěščřž'.encode('utf-8'), 1024),
                          StringComparison("b?'\\\\xc4\\\\x9b\\\\xc5\\\\xa1\\\\xc4\\\\x8d\\\\xc5\\\\x99\\\\xc5\\\\xbe'"))
-        if six.PY2:
+        if six.PY2:  # pragma: no cover
             self.assertEqual(sane_repr('ěščřž', 1024), str("u'\\u011b\\u0161\\u010d\\u0159\\u017e'"))
-        else:
+        else:  # pragma: no cover
             self.assertEqual(sane_repr('ěščřž', 1024), str("'ěščřž'"))
 
 
@@ -126,7 +126,7 @@ class TestCorbaClient(unittest.TestCase):
         self.assertEqual(self.corba_client.method(), sentinel.result)
         self.assertEqual(self.corba_object.mock_calls, [call.method()])
 
-    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")  # pragma: no cover
     def test_args_encoded_py2(self):
         # Test strings in arguments are encoded before corba is called
         self.corba_client.method('ěščřž', 'ýáíé')
@@ -134,13 +134,13 @@ class TestCorbaClient(unittest.TestCase):
         self.assertIsInstance(self.corba_object.mock_calls[0][1][0], six.binary_type)
         self.assertIsInstance(self.corba_object.mock_calls[0][1][1], six.binary_type)
 
-    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")  # pragma: no cover
     def test_args_encoded(self):
         # Test strings in arguments are encoded before corba is called
         self.corba_client.method('ěščřž', 'ýáíé')
         self.assertEqual(self.corba_object.mock_calls, [call.method('ěščřž', 'ýáíé')])
 
-    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")
+    @unittest.skipUnless(six.PY2, "This tests requires python 2 only")  # pragma: no cover
     def test_result_decoded_py2(self):
         # Test strings in result are decoded
         self.corba_object.method.return_value = 'ěščřžýáíé'.encode('utf-8')
@@ -148,7 +148,7 @@ class TestCorbaClient(unittest.TestCase):
         self.assertEqual(result, 'ěščřžýáíé')
         self.assertIsInstance(result, six.text_type)
 
-    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")
+    @unittest.skipUnless(six.PY3, "This tests requires python 3 only")  # pragma: no cover
     def test_result_decoded(self):
         # Test strings in result are decoded
         self.corba_object.method.return_value = 'ěščřžýáíé'

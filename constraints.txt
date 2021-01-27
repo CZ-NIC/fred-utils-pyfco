@@ -1,4 +1,0 @@
-testfixtures==6.3.0
-mock==2.0.0
-pytz==2018.7
-six==1.11.0
