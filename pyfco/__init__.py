@@ -22,5 +22,5 @@ from .client import CorbaClient, CorbaClientProxy
 from .name_service import CorbaNameServiceClient
 from .recoder import CorbaRecoder, c2u, u2c
 
-__version__ = '1.15.1'
+__version__ = '1.16.0'
 __all__ = ['CorbaClient', 'CorbaClientProxy', 'CorbaNameServiceClient', 'CorbaRecoder', 'c2u', 'u2c']

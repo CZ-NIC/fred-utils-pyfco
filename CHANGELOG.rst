@@ -1,6 +1,18 @@
 ChangeLog
 =========
 
+1.16.0 (2021-01-28)
+-------------------
+
+* Add support for Python 3.8 and 3.9.
+* Fix inspect usage.
+* Code style related fixes.
+* Fix tests for python 3.
+* Disable zip install.
+* Convert ``ChangeLog.md`` to ``CHANGELOG.rst``.
+* Update test and CI setup.
+* Add bumpversion.
+
 1.15.1 (2019-11-20)
 -------------------
 
