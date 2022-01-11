@@ -13,8 +13,22 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
-BuildRequires: python2-setuptools
-Requires: python2 python2-six python2-pytz python2-omniORB
+
+%package -n python3-fred-pyfco
+Summary: Library contains python3 code to interact FRED corba backend
+BuildRequires: python3 python3-setuptools
+Requires: python3 python3-six python3-pytz python3-omniORB python3-fred-idl
+
+%package -n python2-fred-pyfco
+Summary: Library contains python2 code to interact FRED corba backend
+BuildRequires: python2 python2-setuptools
+Requires: python2 python2-six python2-pytz python2-omniORB python2-fred-idl
+
+%description -n python3-fred-pyfco
+Library contains python3 code interacting with FRED corba backend
+
+%description -n python2-fred-pyfco
+Library contains python2 code interacting with FRED corba backend
 
 %description
 Library contains python code interacting with FRED corba backend
@@ -23,10 +37,14 @@ Library contains python code interacting with FRED corba backend
 %setup -n %{name}-%{version}
 
 %install
-python2 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --prefix=/usr
+/usr/bin/python2 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES_P2 --prefix=/usr
+/usr/bin/python3 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES_P3 --prefix=/usr
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -f INSTALLED_FILES
+%files -n python3-fred-pyfco -f INSTALLED_FILES_P3
+%defattr(-,root,root)
+
+%files -n python2-fred-pyfco -f INSTALLED_FILES_P2
 %defattr(-,root,root)
