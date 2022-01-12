@@ -20,7 +20,7 @@
 from setuptools import find_packages, setup
 
 setup(name='fred-pyfco',
-      version='1.16.2',
+      version='1.16.3',
       description='PYthon Fred COrba utilities',
       author='Vlastimil Zíma, CZ.NIC',
       author_email='vlastimil.zima@nic.cz',
