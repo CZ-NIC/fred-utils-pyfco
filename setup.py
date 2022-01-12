@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,7 +20,7 @@
 from setuptools import find_packages, setup
 
 setup(name='fred-pyfco',
-      version='1.16.1',
+      version='1.16.3',
       description='PYthon Fred COrba utilities',
       author='Vlastimil Zíma, CZ.NIC',
       author_email='vlastimil.zima@nic.cz',

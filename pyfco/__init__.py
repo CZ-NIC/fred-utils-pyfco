@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -22,5 +22,5 @@ from .client import CorbaClient, CorbaClientProxy
 from .name_service import CorbaNameServiceClient
 from .recoder import CorbaRecoder, c2u, u2c
 
-__version__ = '1.16.1'
+__version__ = '1.16.3'
 __all__ = ['CorbaClient', 'CorbaClientProxy', 'CorbaNameServiceClient', 'CorbaRecoder', 'c2u', 'u2c']

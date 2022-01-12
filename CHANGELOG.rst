@@ -1,6 +1,18 @@
 ChangeLog
 =========
 
+1.16.3 (2022-01-12)
+-------------------
+
+* Fix license date after bump.
+
+1.16.2 (2022-01-12)
+-------------------
+
+* Loosen IDL version requirements.
+* Update static checks.
+* Update Fedora builds.
+
 1.16.1 (2021-01-28)
 -------------------
 
