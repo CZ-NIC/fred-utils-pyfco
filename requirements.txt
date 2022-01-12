@@ -1,4 +1,4 @@
 omniORB ~=4.2.2
 pytz
 six
-fred-idl ~=2.36.0
+fred-idl ~=2.36
